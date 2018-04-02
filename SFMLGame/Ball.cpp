@@ -24,19 +24,19 @@ void Ball::update()
 
 	if (getMinX() < 0)
 		velocity.x = DEFAULT_VELOCITY;
-	else if (getMaxX() > windowWidth)
+	else if (getMaxX() > WINDOW_WIDTH)
 		velocity.x = -DEFAULT_VELOCITY;
 
 	if (getMinY() < 0)
 		velocity.y = DEFAULT_VELOCITY;
-	else if (getMaxY() > windowHeight)
+	else if (getMaxY() > WINDOW_HEIGHT)
 		velocity.y = -DEFAULT_VELOCITY;
 }
 
-void Ball::checkCollision(const Paddle& p)
+bool Ball::checkCollision(const sf::RectangleShape& p)
 {
 	if (!isIntersecting(p))
-		return;
+		return false;
 
 	auto ballVelocity = getVelocity();
 	ballVelocity.y = -ballVelocity.y;
@@ -47,9 +47,10 @@ void Ball::checkCollision(const Paddle& p)
 		ballVelocity.x = Ball::DEFAULT_VELOCITY;
 
 	setVelocity(ballVelocity);
+	return true;
 }
 
-bool Ball::isIntersecting(const Paddle& p) const
+bool Ball::isIntersecting(const sf::RectangleShape& p) const
 {
 	std::vector<sf::Vector2f> paddlePoints;
 	for (int i = 0; i < p.getPointCount(); i++)

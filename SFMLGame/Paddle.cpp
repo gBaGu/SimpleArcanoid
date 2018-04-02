@@ -1,4 +1,5 @@
 #include "Paddle.h"
+
 #include "Setting.h"
 
 
@@ -28,7 +29,7 @@ void Paddle::update()
 	}
 	else if (Keyboard::isKeyPressed(Keyboard::Key::Right) &&
 		!Keyboard::isKeyPressed(Keyboard::Key::Left) &&
-		getMaxX() < windowWidth)
+		getMaxX() < WINDOW_WIDTH)
 	{
 		velocity.x = DEFAULT_VELOCITY;
 	}
