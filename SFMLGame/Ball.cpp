@@ -19,10 +19,16 @@ Ball::Ball(float x, float y)
 	setOrigin(DEFAULT_RADIUS, DEFAULT_RADIUS);
 }
 
+void Ball::stop()
+{
+	velocity = sf::Vector2f(0, 0);
+}
+
 void Ball::update()
 {
 	move(velocity);
 
+	//Check for window border collision
 	if (getMinX() < 0)
 	{
 		velocity.x = DEFAULT_VELOCITY;
@@ -31,18 +37,13 @@ void Ball::update()
 	{
 		velocity.x = -DEFAULT_VELOCITY;
 	}
-
 	if (getMinY() < 0)
 	{
 		velocity.y = DEFAULT_VELOCITY;
 	}
-	else if (getMaxY() > WINDOW_HEIGHT)
-	{
-		velocity.y = -DEFAULT_VELOCITY;
-	}
 }
 
-bool Ball::checkCollision(const sf::RectangleShape& p)
+bool Ball::checkCollision(const sf::RectangleShape& p) //TODO: replace RectangleShape with Rect
 {
 	if (!isIntersecting(p))
 	{
