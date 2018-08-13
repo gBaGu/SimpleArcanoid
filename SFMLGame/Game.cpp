@@ -1,6 +1,7 @@
 #include "Game.h"
 
 #include <algorithm>
+#include <iostream>
 
 using sf::Keyboard;
 
@@ -8,11 +9,21 @@ using sf::Keyboard;
 Game::Game(const std::string& name, size_t maxFps)
 	: window_(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), name),
 	ball_(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2),
-	paddle_(WINDOW_WIDTH / 2, WINDOW_HEIGHT - 50),
-	running_(false)
+	paddle_(WINDOW_WIDTH / 2, WINDOW_HEIGHT - 50)
 {
 	window_.setFramerateLimit(maxFps);
 	initBricks();
+	try
+	{
+		if (!font_.loadFromFile("data/arial.ttf"))
+		{
+			std::cout << "Failed to load font" << std::endl;
+		}
+	}
+	catch (const std::exception& ex)
+	{
+		std::cout << ex.what() << std::endl;
+	}
 }
 
 void Game::run()
@@ -50,6 +61,10 @@ void Game::draw()
 	{
 		window_.draw(brick);
 	}
+	if (message_)
+	{
+		window_.draw(*message_);
+	}
 }
 
 sf::RectangleShape Game::getWindowRect() const
@@ -74,7 +89,7 @@ void Game::initBricks()
 	}
 }
 
-bool Game::isGameOver() const
+bool Game::isBallDropped() const
 {
 	return ball_.getMaxY() > WINDOW_HEIGHT;
 }
@@ -95,8 +110,17 @@ void Game::update()
 		bricks_.erase(brokenBrick);
 	}
 
-	if (isGameOver())
+	if (message_)
 	{
-		running_ = false;
+		if (message_->isExpired())
+		{
+			message_.reset();
+		}
+	}
+	if (!gameOver_ && isBallDropped())
+	{
+		message_ = std::make_unique<PopUpMessage>(window_, "Game Over",
+			font_, PopUpMessage::duration_t(5));
+		gameOver_ = true;
 	}
 }

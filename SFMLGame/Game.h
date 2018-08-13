@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <memory>
 #include <vector>
 
 #include <SFML\Graphics.hpp>
@@ -8,6 +9,7 @@
 #include "Ball.h"
 #include "Brick.h"
 #include "Paddle.h"
+#include "PopUpMessage.h"
 #include "Setting.h"
 
 
@@ -22,12 +24,15 @@ private:
 	void draw();
 	sf::RectangleShape getWindowRect() const;
 	void initBricks();
-	bool isGameOver() const;
+	bool isBallDropped() const;
 	void update();
 
 	sf::RenderWindow window_;
+	sf::Font font_;
+	std::unique_ptr<PopUpMessage> message_;
 	Ball ball_;
 	Paddle paddle_;
 	std::vector<Brick> bricks_;
-	bool running_;
+	bool running_ = false;
+	bool gameOver_ = false;
 };
