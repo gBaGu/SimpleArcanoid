@@ -43,9 +43,9 @@ void Ball::update()
 	}
 }
 
-bool Ball::checkCollision(const sf::RectangleShape& p) //TODO: replace RectangleShape with Rect
+bool Ball::checkCollision(const sf::RectangleShape& rs)
 {
-	if (!isIntersecting(p))
+	if (!isIntersecting(rs))
 	{
 		return false;
 	}
@@ -54,11 +54,11 @@ bool Ball::checkCollision(const sf::RectangleShape& p) //TODO: replace Rectangle
 	auto ballVelocity = getVelocity();
 	ballVelocity.y = -ballVelocity.y;
 
-	if (getPosition().x < p.getPosition().x)
+	if (getPosition().x < rs.getPosition().x)
 	{
 		ballVelocity.x = -Ball::DEFAULT_VELOCITY;
 	}
-	else if (getPosition().x > p.getPosition().x)
+	else if (getPosition().x > rs.getPosition().x)
 	{
 		ballVelocity.x = Ball::DEFAULT_VELOCITY;
 	}
@@ -67,34 +67,34 @@ bool Ball::checkCollision(const sf::RectangleShape& p) //TODO: replace Rectangle
 	return true;
 }
 
-bool Ball::isIntersecting(const sf::RectangleShape& p) const
+bool Ball::isIntersecting(const sf::RectangleShape& rs) const
 {
 	auto center = getPosition();
 	auto radius = getRadius();
-	if (isInsideByCrossingNumber(center, p))
+	if (isInsideByCrossingNumber(center, rs))
 	{
 		return true;
 	}
 
-	std::vector<sf::Vector2f> paddlePoints;
-	for (int i = 0; i < p.getPointCount(); i++)
+	std::vector<sf::Vector2f> rectPoints;
+	for (int i = 0; i < rs.getPointCount(); i++)
 	{
-		auto point = p.getPoint(i);
-		auto transform = p.getTransform();
-		paddlePoints.push_back(transform.transformPoint(point));
+		auto point = rs.getPoint(i);
+		auto transform = rs.getTransform();
+		rectPoints.push_back(transform.transformPoint(point));
 	}
-	if (paddlePoints.empty())
+	if (rectPoints.empty())
 	{
 		return false;
 	}
 
-	std::vector<Segment<float>> paddleSides;
-	for (auto it = paddlePoints.begin(); it != std::prev(paddlePoints.end()); it++)
+	std::vector<Segment<float>> rectSides;
+	for (auto it = rectPoints.begin(); it != std::prev(rectPoints.end()); it++)
 	{
-		paddleSides.emplace_back(*it, *(it + 1));
+		rectSides.emplace_back(*it, *(it + 1));
 	}
-	paddleSides.emplace_back(paddlePoints.back(), paddlePoints.front());
+	rectSides.emplace_back(rectPoints.back(), rectPoints.front());
 
-	return std::any_of(paddleSides.begin(), paddleSides.end(),
-		[center, radius](Segment<float> s) { return distance(center, s) < radius; });
+	return std::any_of(rectSides.begin(), rectSides.end(),
+		[center, radius](auto s) { return distance(center, s) < radius; });
 }

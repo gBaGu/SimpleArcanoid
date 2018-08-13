@@ -18,13 +18,31 @@ class Game
 public:
 	Game(const std::string& name, size_t maxFps);
 
+	/*
+	standart game loop: clear()->update()->draw()->display()
+	*/
 	void run();
 
 private:
+	/*
+	draws all objects on window
+	*/
 	void draw();
+	/*
+	returns window rectangle
+	*/
 	sf::RectangleShape getWindowRect() const;
+	/*
+	fills vector of bricks
+	*/
 	void initBricks();
+	/*
+	checks if ball is out of screen
+	*/
 	bool isBallDropped() const;
+	/*
+	updates all objects
+	*/
 	void update();
 
 	sf::RenderWindow window_;

@@ -10,7 +10,12 @@ public:
 
 	Ball(float x, float y);
 
-	bool checkCollision(const sf::RectangleShape& p);
+	/*
+	checks if there is a collision between Ball and RectangleShape
+	if there is one, modifies the velocity of Ball and returns true
+	else returns false
+	*/
+	bool checkCollision(const sf::RectangleShape& rs);
 	void setVelocity(sf::Vector2f v) { velocity = v; }
 	void stop();
 	void update();
@@ -25,7 +30,7 @@ public:
 	true if Ball is inside of p or intersecting it
 	false if Ball is outside of p
 	*/
-	bool isIntersecting(const sf::RectangleShape& p) const;
+	bool isIntersecting(const sf::RectangleShape& rs) const;
 
 private:
 	sf::Vector2f velocity;

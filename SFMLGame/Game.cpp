@@ -69,9 +69,7 @@ void Game::draw()
 
 sf::RectangleShape Game::getWindowRect() const
 {
-	sf::RectangleShape r(sf::Vector2f(WINDOW_WIDTH, WINDOW_HEIGHT));
-	r.setPosition(WINDOW_WIDTH * 0.5, WINDOW_HEIGHT * 0.5);
-	r.setOrigin(r.getSize().x / 2, r.getSize().y / 2);
+	sf::RectangleShape r(sf::Vector2f(window_.getSize().x, window_.getSize().y));
 	return r;
 }
 
