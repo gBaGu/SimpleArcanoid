@@ -16,6 +16,7 @@ public:
 	else returns false
 	*/
 	bool checkCollision(const sf::RectangleShape& rs);
+	void setRadius(float r, bool updateOrigin);
 	void setVelocity(sf::Vector2f v) { velocity = v; }
 	void stop();
 	void update();

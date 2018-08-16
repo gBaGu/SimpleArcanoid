@@ -89,18 +89,33 @@ void Game::initBricks()
 
 bool Game::isBallDropped() const
 {
-	return ball_.getMaxY() > WINDOW_HEIGHT;
+	return ball_.getPosition().y > WINDOW_HEIGHT;
+}
+
+bool Game::isDifficultyTimerUp() const
+{
+	auto dur = default_clock::now() - lastUpdateDifficultyTime_;
+	return dur > updateDifficultyDuration_;
 }
 
 void Game::update()
 {
 	ball_.update();
 	paddle_.update();
-	ball_.checkCollision(paddle_);
 	if (!ball_.isIntersecting(getWindowRect()))
 	{
 		ball_.stop();
 	}
+	if (gameOver_)
+	{
+		return;
+	}
+
+	if (isDifficultyTimerUp())
+	{
+		updateDifficulty();
+	}
+	ball_.checkCollision(paddle_);
 	auto brokenBrick = std::find_if(bricks_.begin(), bricks_.end(),
 		[this](const Brick& brick) { return ball_.checkCollision(brick); });
 	if (brokenBrick != bricks_.end())
@@ -115,10 +130,21 @@ void Game::update()
 			message_.reset();
 		}
 	}
-	if (!gameOver_ && isBallDropped())
+	if (isBallDropped())
 	{
 		message_ = std::make_unique<PopUpMessage>(window_, "Game Over",
-			font_, PopUpMessage::duration_t(5));
+			font_, duration_t(5));
 		gameOver_ = true;
 	}
+}
+
+void Game::updateDifficulty()
+{
+	auto newBallVelocity = ball_.getVelocity();
+	newBallVelocity.x *= 1.1;
+	newBallVelocity.y *= 1.1;
+	ball_.setVelocity(newBallVelocity);
+	message_ = std::make_unique<PopUpMessage>(window_, "Speed up!",
+		font_, duration_t(1));
+	lastUpdateDifficultyTime_ = default_clock::now();
 }

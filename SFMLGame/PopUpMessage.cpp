@@ -14,6 +14,6 @@ PopUpMessage::PopUpMessage(const sf::RenderWindow& window, const std::string& me
 
 bool PopUpMessage::isExpired() const
 {
-	auto dur = clock_t::now() - initTime_;
+	auto dur = default_clock::now() - initTime_;
 	return dur > duration_;
 }

@@ -8,7 +8,7 @@
 
 
 const float Ball::DEFAULT_RADIUS = 10.0f;
-const float Ball::DEFAULT_VELOCITY = 8.0f;
+const float Ball::DEFAULT_VELOCITY = 5.0f;
 
 Ball::Ball(float x, float y)
 	: CircleShape(DEFAULT_RADIUS),
@@ -17,30 +17,6 @@ Ball::Ball(float x, float y)
 	setPosition(x, y);
 	setFillColor(sf::Color::Red);
 	setOrigin(DEFAULT_RADIUS, DEFAULT_RADIUS);
-}
-
-void Ball::stop()
-{
-	velocity = sf::Vector2f(0, 0);
-}
-
-void Ball::update()
-{
-	move(velocity);
-
-	//Check for window border collision
-	if (getMinX() < 0)
-	{
-		velocity.x = DEFAULT_VELOCITY;
-	}
-	else if (getMaxX() > WINDOW_WIDTH)
-	{
-		velocity.x = -DEFAULT_VELOCITY;
-	}
-	if (getMinY() < 0)
-	{
-		velocity.y = DEFAULT_VELOCITY;
-	}
 }
 
 bool Ball::checkCollision(const sf::RectangleShape& rs)
@@ -56,15 +32,50 @@ bool Ball::checkCollision(const sf::RectangleShape& rs)
 
 	if (getPosition().x < rs.getPosition().x)
 	{
-		ballVelocity.x = -Ball::DEFAULT_VELOCITY;
+		ballVelocity.x = std::min(ballVelocity.x, -ballVelocity.x);
+			//ballVelocity.x > 0 ? -ballVelocity.x : ballVelocity.x;
+			//-Ball::DEFAULT_VELOCITY;
 	}
 	else if (getPosition().x > rs.getPosition().x)
 	{
-		ballVelocity.x = Ball::DEFAULT_VELOCITY;
+		ballVelocity.x = std::max(ballVelocity.x, -ballVelocity.x);
 	}
 
 	setVelocity(ballVelocity);
 	return true;
+}
+
+void Ball::setRadius(float r, bool updateOrigin)
+{
+	CircleShape::setRadius(getRadius() * 2);
+	if (updateOrigin)
+	{
+		setOrigin(getRadius(), getRadius());
+	}
+}
+
+void Ball::stop()
+{
+	velocity = sf::Vector2f(0, 0);
+}
+
+void Ball::update()
+{
+	move(velocity);
+
+	//Check for window border collision
+	if (getMinX() < 0)
+	{
+		velocity.x = std::max(velocity.x, -velocity.x);
+	}
+	else if (getMaxX() > WINDOW_WIDTH)
+	{
+		velocity.x = std::min(velocity.x, -velocity.x);
+	}
+	if (getMinY() < 0)
+	{
+		velocity.y = std::max(velocity.y, -velocity.y);
+	}
 }
 
 bool Ball::isIntersecting(const sf::RectangleShape& rs) const
