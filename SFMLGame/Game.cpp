@@ -140,10 +140,8 @@ void Game::update()
 
 void Game::updateDifficulty()
 {
-	auto newBallVelocity = ball_.getVelocity();
-	newBallVelocity.x *= 1.1;
-	newBallVelocity.y *= 1.1;
-	ball_.setVelocity(newBallVelocity);
+	auto newBallSpeed = ball_.getSpeed() * 1.1;
+	ball_.setSpeed(newBallSpeed);
 	message_ = std::make_unique<PopUpMessage>(window_, "Speed up!",
 		font_, duration_t(1));
 	lastUpdateDifficultyTime_ = default_clock::now();

@@ -1,12 +1,18 @@
 #pragma once
+#include <memory>
+#include <vector>
+
 #include <SFML\Graphics.hpp>
+
+#include "Effect.h"
 
 
 class Ball : public sf::CircleShape
 {
 public:
 	static const float DEFAULT_RADIUS;
-	static const float DEFAULT_VELOCITY;
+	static const float DEFAULT_SPEED;
+	static const sf::Vector2f DEFAULT_VELOCITY;
 
 	Ball(float x, float y);
 
@@ -16,12 +22,16 @@ public:
 	else returns false
 	*/
 	bool checkCollision(const sf::RectangleShape& rs);
+	void decreaseSpeed();
+	void increaseSpeed();
 	void setRadius(float r, bool updateOrigin);
-	void setVelocity(sf::Vector2f v) { velocity = v; }
+	void setSpeed(float speed) { speed_ = speed; }
+	void setVelocity(sf::Vector2f velocity);
 	void stop();
 	void update();
 
-	sf::Vector2f getVelocity() const { return velocity; }
+	float getSpeed() const { return speed_; }
+	sf::Vector2f getVelocity() const { return velocity_; }
 	float getMinX() const { return getPosition().x - getRadius(); }
 	float getMaxX() const { return getPosition().x + getRadius(); }
 	float getMinY() const { return getPosition().y - getRadius(); }
@@ -34,5 +44,9 @@ public:
 	bool isIntersecting(const sf::RectangleShape& rs) const;
 
 private:
-	sf::Vector2f velocity;
+	float speed_;
+	sf::Vector2f velocity_;
+
+	std::vector<std::shared_ptr<Effect>> activeEffects_;
+	std::weak_ptr<Effect> speedEffect_;
 };

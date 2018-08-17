@@ -31,15 +31,36 @@ struct Ray
 
 
 template <typename T>
-T length(sf::Vector2<T> s)
+T length(sf::Vector2<T> v)
 {
-	return std::pow(s.x * s.x + s.y * s.y, 0.5);
+	return std::pow(v.x * v.x + v.y * v.y, 0.5);
 }
 
 template <typename T>
-T length(sf::Vector3<T> s)
+T length(sf::Vector3<T> v)
 {
-	return std::pow(s.x * s.x + s.y * s.y + s.z * s.z, 0.5);
+	return std::pow(v.x * v.x + v.y * v.y + v.z * v.z, 0.5);
+}
+
+template <typename T>
+sf::Vector2<T> normalize(sf::Vector2<T> v)
+{
+	auto l = length(v);
+	auto ret = v;
+	ret.x /= l;
+	ret.y /= l;
+	return ret;
+}
+
+template <typename T>
+sf::Vector3<T> normalize(sf::Vector3<T> v)
+{
+	auto l = length(v);
+	auto ret = v;
+	ret.x /= l;
+	ret.y /= l;
+	ret.z /= l;
+	return ret;
 }
 
 template <typename T>
