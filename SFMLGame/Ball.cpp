@@ -24,6 +24,11 @@ Ball::Ball(float x, float y)
 	setOrigin(DEFAULT_RADIUS, DEFAULT_RADIUS);
 }
 
+Ball::~Ball()
+{
+
+}
+
 bool Ball::checkCollision(const sf::RectangleShape& rs)
 {
 	if (!isIntersecting(rs))

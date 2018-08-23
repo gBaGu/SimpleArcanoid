@@ -6,6 +6,12 @@
 
 #include "Effect.h"
 
+#ifdef SFMLGAME_EXPORTS  
+#define SFMLGAME_API __declspec(dllexport)   
+#else  
+#define SFMLGAME_API __declspec(dllimport)   
+#endif
+
 
 class Ball : public sf::CircleShape
 {
@@ -14,7 +20,8 @@ public:
 	static const float DEFAULT_SPEED;
 	static const sf::Vector2f DEFAULT_VELOCITY;
 
-	Ball(float x, float y);
+	SFMLGAME_API Ball(float x, float y);
+	SFMLGAME_API ~Ball();
 
 	/*
 	checks if there is a collision between Ball and RectangleShape
