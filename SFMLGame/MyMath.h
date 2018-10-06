@@ -1,6 +1,8 @@
 #pragma once
 #include <SFML\Graphics.hpp>
 
+constexpr double eps = 0.001;
+
 
 template <typename T>
 struct Segment
@@ -106,7 +108,7 @@ T distance(sf::Vector2<T> p, Segment<T> s)
 template <typename T>
 bool isContaining(Line<T> l, sf::Vector2<T> p)
 {
-	return (p.x - l.A.x) * (l.B.y - l.A.y) == (l.B.x - l.A.x) * (p.y - l.A.y);
+	return std::abs((p.x - l.A.x) * (l.B.y - l.A.y) - (l.B.x - l.A.x) * (p.y - l.A.y)) < eps;
 }
 
 //checks if point lies on a ray
@@ -122,7 +124,7 @@ bool isContaining(Ray<T> r, sf::Vector2<T> p)
 template <typename T>
 bool isContaining(Segment<T> s, sf::Vector2<T> p)
 {
-	return isContaining(Line(s.A, s.B), p) && isInside(p, s.A, s.B);
+	return isContaining(Line<T>(s.A, s.B), p) && isInside(p, s.A, s.B);
 }
 
 //checks if point is inside of rectangle created by two points
@@ -159,7 +161,7 @@ bool isParallel(Line<T> l1, Line<T> l2)
 	A2 = l2.B.y - l2.A.y;
 	B2 = l2.A.x - l2.B.x;
 
-	return A1 * B2 == B1 * A2;
+	return std::abs(A1 * B2 - B1 * A2) < eps;
 }
 
 //check if two points of first segment are on different sides
@@ -227,13 +229,17 @@ bool isInsideByCrossingNumber(sf::Vector2<T> p, const sf::RectangleShape& rect)
 		auto point = rect.getPoint(i);
 		auto transform = rect.getTransform();
 		point = transform.transformPoint(point);
-		//if point lies on one of the vertices
-		//there is no need to count crossings
-		if (point == p)
+		points.push_back(point);
+	}
+	//if point lies on one of the sides
+	//there is no need to count crossings
+	for (auto pIt = points.begin(); pIt != points.end(); pIt++)
+	{
+		auto nextIt = (std::next(pIt) == points.end()) ? points.begin() : std::next(pIt);
+		if (isContaining(Segment<T>(*pIt, *nextIt), p))
 		{
 			return true;
 		}
-		points.push_back(point);
 	}
 
 	const auto firstPointNotOnRayIt = std::find_if_not(points.begin(), points.end(),
