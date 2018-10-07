@@ -48,7 +48,7 @@ public:
 	true if Ball is inside of p or intersecting it
 	false if Ball is outside of p
 	*/
-	bool isIntersecting(const sf::RectangleShape& rs) const;
+	SFMLGAME_API bool isIntersecting(const sf::RectangleShape& rs) const;
 
 private:
 	float speed_;

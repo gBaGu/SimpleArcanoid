@@ -1,7 +1,6 @@
 #include <gtest\gtest.h>
 #include <SFML\Graphics.hpp>
 
-#include "Ball.h"
 #include "MyMath.h"
 
 

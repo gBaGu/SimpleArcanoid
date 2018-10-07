@@ -131,6 +131,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Ball.Tests.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MyMath.Tests.cpp" />
   </ItemGroup>
