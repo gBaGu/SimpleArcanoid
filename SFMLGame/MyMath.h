@@ -116,8 +116,8 @@ template <typename T>
 bool isContaining(Ray<T> r, sf::Vector2<T> p)
 {
 	return isContaining(Line<T>(r.A, r.B), p) &&
-			((p.x - r.A.x) * (r.B.x - r.A.x) >= 0 &&
-				(p.y - r.A.y) * (r.B.y - r.A.y) >= 0);
+			((p.x - r.A.x) * (r.B.x - r.A.x) >= -eps &&
+				(p.y - r.A.y) * (r.B.y - r.A.y) >= -eps);
 }
 
 //checks if point lies on a segment
@@ -131,10 +131,10 @@ bool isContaining(Segment<T> s, sf::Vector2<T> p)
 template <typename T>
 bool isInside(sf::Vector2<T> p, sf::Vector2<T> boundP1, sf::Vector2<T> boundP2)
 {
-	return (p.x >= std::min(boundP1.x, boundP2.x) &&
-			p.x <= std::max(boundP1.x, boundP2.x)) &&
-		(p.y >= std::min(boundP1.y, boundP2.y) &&
-			p.y <= std::max(boundP1.y, boundP2.y));
+	return ((p.x - std::min(boundP1.x, boundP2.x) >= -eps) &&
+		    (p.x - std::max(boundP1.x, boundP2.x) <= eps)) &&
+		   ((p.y - std::min(boundP1.y, boundP2.y) >= -eps) &&
+		    (p.y - std::max(boundP1.y, boundP2.y) <= eps));
 }
 
 //checks if line divides two points
