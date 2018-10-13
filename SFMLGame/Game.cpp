@@ -59,7 +59,11 @@ void Game::draw()
 	window_.draw(paddle_);
 	for (const auto& brick : bricks_)
 	{
-		window_.draw(brick);
+		window_.draw(*brick);
+	}
+	for (const auto& mod : modificators_)
+	{
+		window_.draw(*mod);
 	}
 	if (message_)
 	{
@@ -77,12 +81,23 @@ void Game::initBricks()
 {
 	bricks_.clear();
 	bricks_.reserve(COUNT_BRICKS_X * COUNT_BRICKS_Y);
+	auto onDestroy = [&mods = this->modificators_](float x, float y)
+	{
+		if (rand() % 100 < 10)
+		{
+			auto mod = std::make_shared<Modificator>(x, y);
+			mods.push_back(mod);
+		}
+	};
 	for (int iX = 0; iX < COUNT_BRICKS_X; iX++)
 	{
 		for (int iY = 0; iY < COUNT_BRICKS_Y; iY++)
 		{
-			bricks_.emplace_back((iX + 1) * (Brick::DEFAULT_WIDTH + 3) + 22,
-				(iY + 2) * (Brick::DEFAULT_HEIGHT + 3));
+			auto x = (iX + 1) * (Brick::DEFAULT_WIDTH + 3) + 22;
+			auto y = (iY + 2) * (Brick::DEFAULT_HEIGHT + 3);
+			auto brick = std::make_shared<Brick>(x, y);
+			bricks_.push_back(brick);
+			bricks_.back()->setOnDestroy(onDestroy);
 		}
 	}
 }
@@ -102,6 +117,10 @@ void Game::update()
 {
 	ball_.update();
 	paddle_.update();
+	for (auto& mod : modificators_)
+	{
+		mod->update();
+	}
 	if (!ball_.isIntersecting(getWindowRect()))
 	{
 		ball_.stop();
@@ -117,11 +136,18 @@ void Game::update()
 	}
 	ball_.checkCollision(paddle_);
 	auto brokenBrick = std::find_if(bricks_.begin(), bricks_.end(),
-		[this](const Brick& brick) { return ball_.checkCollision(brick); });
+		[this](const auto& brick) { return ball_.checkCollision(*brick); });
 	if (brokenBrick != bricks_.end())
 	{
 		bricks_.erase(brokenBrick);
 	}
+	modificators_.erase(std::remove_if(modificators_.begin(), modificators_.end(),[this](const auto& mod)
+	{
+		auto rect = mod->getGlobalBounds();
+		auto windowRect = getWindowRect().getGlobalBounds();
+		return !windowRect.intersects(rect);
+	}),
+		modificators_.end());
 
 	if (message_)
 	{

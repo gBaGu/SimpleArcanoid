@@ -8,6 +8,7 @@
 
 #include "Ball.h"
 #include "Brick.h"
+#include "Modificator.h"
 #include "MyTime.h"
 #include "Paddle.h"
 #include "PopUpMessage.h"
@@ -51,13 +52,14 @@ private:
 	void updateDifficulty();
 
 	sf::RenderWindow window_;
+	Ball ball_;
+	Paddle paddle_;
+	std::vector<std::shared_ptr<Brick>> bricks_;
+	std::vector<std::shared_ptr<Modificator>> modificators_;
 	sf::Font font_;
 	std::unique_ptr<PopUpMessage> message_;
-	Ball ball_;
 	const duration_t updateDifficultyDuration_ = duration_t(10);
 	time_point_t lastUpdateDifficultyTime_ = default_clock::now();
-	Paddle paddle_;
-	std::vector<Brick> bricks_;
 	bool running_ = false;
 	bool gameOver_ = false;
 };

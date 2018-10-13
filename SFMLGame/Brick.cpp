@@ -1,7 +1,5 @@
 #include "Brick.h"
 
-#include "Setting.h"
-
 
 const float Brick::DEFAULT_WIDTH = 60.0f;
 const float Brick::DEFAULT_HEIGHT = 20.0f;
@@ -13,4 +11,12 @@ Brick::Brick(float x, float y)
 	setPosition(x, y);
 	setFillColor(sf::Color::Yellow);
 	setOrigin(getSize().x / 2, getSize().y / 2);
+}
+
+Brick::~Brick()
+{
+	if (onDestroy_)
+	{
+		onDestroy_(getPosition().x, getPosition().y);
+	}
 }
