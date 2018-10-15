@@ -140,7 +140,6 @@
   <ItemGroup>
     <ClCompile Include="Ball.cpp" />
     <ClCompile Include="Brick.cpp" />
-    <ClCompile Include="Effect.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Modificator.cpp" />
@@ -148,6 +147,7 @@
     <ClCompile Include="PopUpMessage.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Attribute.h" />
     <ClInclude Include="Ball.h" />
     <ClInclude Include="Brick.h" />
     <ClInclude Include="Game.h" />
@@ -157,7 +157,6 @@
     <ClInclude Include="Paddle.h" />
     <ClInclude Include="PopUpMessage.h" />
     <ClInclude Include="Setting.h" />
-    <ClInclude Include="Effect.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

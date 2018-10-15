@@ -33,9 +33,6 @@
     <ClCompile Include="PopUpMessage.cpp">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
-    <ClCompile Include="Effect.cpp">
-      <Filter>Файлы исходного кода</Filter>
-    </ClCompile>
     <ClCompile Include="Modificator.cpp">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
@@ -65,10 +62,10 @@
     <ClInclude Include="MyTime.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
-    <ClInclude Include="Effect.h">
+    <ClInclude Include="Modificator.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
-    <ClInclude Include="Modificator.h">
+    <ClInclude Include="Attribute.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
   </ItemGroup>

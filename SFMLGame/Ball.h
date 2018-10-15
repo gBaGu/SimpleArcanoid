@@ -1,10 +1,8 @@
 #pragma once
-#include <memory>
-#include <vector>
-
 #include <SFML\Graphics.hpp>
 
-#include "Effect.h"
+#include "Attribute.h"
+#include "MyTime.h"
 
 #ifdef SFMLGAME_EXPORTS  
 #define SFMLGAME_API __declspec(dllexport)   
@@ -29,15 +27,16 @@ public:
 	else returns false
 	*/
 	bool checkCollision(const sf::RectangleShape& rs);
-	void decreaseSpeed();
-	void increaseSpeed();
+	void changeSpeed(float diff);
+	void changeSpeed(float diff, duration_t dur);
 	void setRadius(float r, bool updateOrigin);
-	void setSpeed(float speed) { speed_ = speed; }
+	void setSpeed(float speed) { speed_.set(speed); }
 	void setVelocity(sf::Vector2f velocity);
 	void stop();
 	void update();
 
-	float getSpeed() const { return speed_; }
+	float getBaseSpeed() const { return speed_.getBase(); }
+	float getSpeed() const { return speed_.getTotal(); }
 	sf::Vector2f getVelocity() const { return velocity_; }
 	float getMinX() const { return getPosition().x - getRadius(); }
 	float getMaxX() const { return getPosition().x + getRadius(); }
@@ -51,9 +50,6 @@ public:
 	SFMLGAME_API bool isIntersecting(const sf::RectangleShape& rs) const;
 
 private:
-	float speed_;
+	Attribute<float> speed_;
 	sf::Vector2f velocity_;
-
-	std::vector<std::shared_ptr<Effect>> activeEffects_;
-	std::weak_ptr<Effect> speedEffect_;
 };

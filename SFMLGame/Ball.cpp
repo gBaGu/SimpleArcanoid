@@ -1,12 +1,10 @@
 #include "Ball.h"
 
 #include <algorithm>
-#include <iostream>
 #include <iterator>
 
 #include "Setting.h"
 #include "MyMath.h"
-#include "MyTime.h"
 
 
 const float Ball::DEFAULT_RADIUS = 10.0f;
@@ -53,42 +51,14 @@ bool Ball::checkCollision(const sf::RectangleShape& rs)
 	return true;
 }
 
-void Ball::decreaseSpeed()
+void Ball::changeSpeed(float diff)
 {
-	auto effect = speedEffect_.lock();
-	if (!effect)
-	{
-		auto oldValue = getSpeed();
-		auto newEffect = std::make_shared<Effect>([this, oldValue]() { setSpeed(oldValue); },
-			duration_t(5));
-		speedEffect_ = newEffect;
-		activeEffects_.push_back(newEffect);
-	}
-	else
-	{
-		effect->extend();
-	}
-	float newValue = getSpeed() * 0.5f;
-	setSpeed(newValue);
+	speed_.change(diff);
 }
 
-void Ball::increaseSpeed()
+void Ball::changeSpeed(float diff, duration_t dur)
 {
-	auto effect = speedEffect_.lock();
-	if (!effect)
-	{
-		auto oldValue = getSpeed();
-		auto newEffect = std::make_shared<Effect>([this, oldValue]() { setSpeed(oldValue); },
-			duration_t(5));
-		speedEffect_ = newEffect;
-		activeEffects_.push_back(newEffect);
-	}
-	else
-	{
-		effect->extend();
-	}
-	float newValue = getSpeed() * 1.5f;
-	setSpeed(newValue);
+	speed_.change(diff, dur);
 }
 
 void Ball::setRadius(float r, bool updateOrigin)
@@ -108,12 +78,12 @@ void Ball::setVelocity(sf::Vector2f velocity)
 
 void Ball::stop()
 {
-	speed_ = 0;
+	speed_.set(0.0);
 }
 
 void Ball::update()
 {
-	move(velocity_ * speed_);
+	move(velocity_ * speed_.getTotal());
 
 	//Check for window border collision
 	if (getMinX() < 0)
@@ -129,9 +99,7 @@ void Ball::update()
 		velocity_.y = std::max(velocity_.y, -velocity_.y);
 	}
 
-	activeEffects_.erase(std::remove_if(activeEffects_.begin(), activeEffects_.end(),
-			[](std::shared_ptr<Effect> effect) { return effect->isExpired(); }),
-		activeEffects_.end());
+	speed_.removeExpired();
 }
 
 bool Ball::isIntersecting(const sf::RectangleShape& rs) const

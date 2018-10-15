@@ -141,7 +141,8 @@ void Game::update()
 	{
 		bricks_.erase(brokenBrick);
 	}
-	modificators_.erase(std::remove_if(modificators_.begin(), modificators_.end(),[this](const auto& mod)
+	modificators_.erase(std::remove_if(modificators_.begin(), modificators_.end(),
+		[this](const auto& mod)
 	{
 		auto rect = mod->getGlobalBounds();
 		auto windowRect = getWindowRect().getGlobalBounds();
@@ -166,8 +167,8 @@ void Game::update()
 
 void Game::updateDifficulty()
 {
-	auto newBallSpeed = ball_.getSpeed() * 1.1;
-	ball_.setSpeed(newBallSpeed);
+	auto speedDiff = ball_.getBaseSpeed() * 0.1;
+	ball_.changeSpeed(speedDiff);
 	message_ = std::make_unique<PopUpMessage>(window_, "Speed up!",
 		font_, duration_t(1));
 	lastUpdateDifficultyTime_ = default_clock::now();
