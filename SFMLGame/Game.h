@@ -52,8 +52,8 @@ private:
 	void updateDifficulty();
 
 	sf::RenderWindow window_;
-	Ball ball_;
-	Paddle paddle_;
+	std::shared_ptr<Ball> ball_;
+	std::shared_ptr<Paddle> paddle_;
 	std::vector<std::shared_ptr<Brick>> bricks_;
 	std::vector<std::shared_ptr<Modificator>> modificators_;
 	sf::Font font_;

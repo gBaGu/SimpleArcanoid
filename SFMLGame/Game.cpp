@@ -7,11 +7,11 @@ using sf::Keyboard;
 
 
 Game::Game(const std::string& name, size_t maxFps)
-	: window_(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), name),
-	ball_(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2),
-	paddle_(WINDOW_WIDTH / 2, WINDOW_HEIGHT - 50)
+	: window_(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), name)	
 {
 	window_.setFramerateLimit(maxFps);
+	ball_ = std::make_shared<Ball>(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
+	paddle_ = std::make_shared<Paddle>(WINDOW_WIDTH / 2, WINDOW_HEIGHT - 50);
 	initBricks();
 	try
 	{
@@ -55,8 +55,8 @@ void Game::run()
 
 void Game::draw()
 {
-	window_.draw(ball_);
-	window_.draw(paddle_);
+	window_.draw(*ball_);
+	window_.draw(*paddle_);
 	for (const auto& brick : bricks_)
 	{
 		window_.draw(*brick);
@@ -81,11 +81,11 @@ void Game::initBricks()
 {
 	bricks_.clear();
 	bricks_.reserve(COUNT_BRICKS_X * COUNT_BRICKS_Y);
-	auto onDestroy = [&mods = this->modificators_](float x, float y)
+	auto onDestroy = [ball = this->ball_, &mods = this->modificators_](float x, float y)
 	{
 		if (rand() % 100 < 10)
 		{
-			auto mod = std::make_shared<Modificator>(x, y);
+			std::shared_ptr<Modificator> mod = std::make_shared<BallSpeedPositiveModificator>(x, y, ball);
 			mods.push_back(mod);
 		}
 	};
@@ -104,7 +104,7 @@ void Game::initBricks()
 
 bool Game::isBallDropped() const
 {
-	return ball_.getPosition().y > WINDOW_HEIGHT;
+	return ball_->getPosition().y > WINDOW_HEIGHT;
 }
 
 bool Game::isDifficultyTimerUp() const
@@ -115,15 +115,15 @@ bool Game::isDifficultyTimerUp() const
 
 void Game::update()
 {
-	ball_.update();
-	paddle_.update();
+	ball_->update();
+	paddle_->update();
 	for (auto& mod : modificators_)
 	{
 		mod->update();
 	}
-	if (!ball_.isIntersecting(getWindowRect()))
+	if (!ball_->isIntersecting(getWindowRect()))
 	{
-		ball_.stop();
+		ball_->stop();
 	}
 	if (gameOver_)
 	{
@@ -134,9 +134,9 @@ void Game::update()
 	{
 		updateDifficulty();
 	}
-	ball_.checkCollision(paddle_);
+	ball_->checkCollision(*paddle_);
 	auto brokenBrick = std::find_if(bricks_.begin(), bricks_.end(),
-		[this](const auto& brick) { return ball_.checkCollision(*brick); });
+		[this](const auto& brick) { return ball_->checkCollision(*brick); });
 	if (brokenBrick != bricks_.end())
 	{
 		bricks_.erase(brokenBrick);
@@ -144,9 +144,15 @@ void Game::update()
 	modificators_.erase(std::remove_if(modificators_.begin(), modificators_.end(),
 		[this](const auto& mod)
 	{
-		auto rect = mod->getGlobalBounds();
+		auto modRect = mod->getGlobalBounds();
 		auto windowRect = getWindowRect().getGlobalBounds();
-		return !windowRect.intersects(rect);
+		auto paddleRect = paddle_->getGlobalBounds();
+		if (modRect.intersects(paddleRect))
+		{
+			mod->trigger();
+			return true;
+		}
+		return !windowRect.intersects(modRect);
 	}),
 		modificators_.end());
 
@@ -167,8 +173,8 @@ void Game::update()
 
 void Game::updateDifficulty()
 {
-	auto speedDiff = ball_.getBaseSpeed() * 0.1;
-	ball_.changeSpeed(speedDiff);
+	auto speedDiff = ball_->getBaseSpeed() * 0.1;
+	ball_->changeSpeed(speedDiff);
 	message_ = std::make_unique<PopUpMessage>(window_, "Speed up!",
 		font_, duration_t(1));
 	lastUpdateDifficultyTime_ = default_clock::now();
