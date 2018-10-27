@@ -8,6 +8,7 @@
 
 #include "Ball.h"
 #include "Brick.h"
+#include "BricksLayout.h"
 #include "Modificator.h"
 #include "MyTime.h"
 #include "Paddle.h"
@@ -18,7 +19,7 @@
 class Game
 {
 public:
-	Game(const std::string& name, size_t maxFps);
+	Game(const std::string& name, size_t maxFps, std::shared_ptr<BricksLayout> bl);
 
 	/*
 	standart game loop: clear()->update()->draw()->display()
@@ -37,7 +38,7 @@ private:
 	/* initBricks()
 	fills vector of bricks
 	*/
-	void initBricks();
+	void initBricks(std::shared_ptr<BricksLayout> bl);
 	/* isBallDropped()
 	checks if ball is out of screen
 	*/

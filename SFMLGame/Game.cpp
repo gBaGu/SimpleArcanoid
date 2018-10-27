@@ -6,13 +6,13 @@
 using sf::Keyboard;
 
 
-Game::Game(const std::string& name, size_t maxFps)
+Game::Game(const std::string& name, size_t maxFps, std::shared_ptr<BricksLayout> bl)
 	: window_(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), name)	
 {
 	window_.setFramerateLimit(maxFps);
 	ball_ = std::make_shared<Ball>(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
 	paddle_ = std::make_shared<Paddle>(WINDOW_WIDTH / 2, WINDOW_HEIGHT - 50);
-	initBricks();
+	initBricks(bl);
 	try
 	{
 		if (!font_.loadFromFile("data/arial.ttf"))
@@ -77,7 +77,7 @@ sf::RectangleShape Game::getWindowRect() const
 	return r;
 }
 
-void Game::initBricks()
+void Game::initBricks(std::shared_ptr<BricksLayout> bl)
 {
 	bricks_.clear();
 	bricks_.reserve(COUNT_BRICKS_X * COUNT_BRICKS_Y);
@@ -89,16 +89,11 @@ void Game::initBricks()
 			mods.push_back(mod);
 		}
 	};
-	for (int iX = 0; iX < COUNT_BRICKS_X; iX++)
+	while (bl->hasNext())
 	{
-		for (int iY = 0; iY < COUNT_BRICKS_Y; iY++)
-		{
-			auto x = (iX + 1) * (Brick::DEFAULT_WIDTH + 3) + 22;
-			auto y = (iY + 2) * (Brick::DEFAULT_HEIGHT + 3);
-			auto brick = std::make_shared<Brick>(x, y);
-			bricks_.push_back(brick);
-			bricks_.back()->setOnDestroy(onDestroy);
-		}
+		auto brick = bl->getNext();
+		brick->setOnDestroy(onDestroy);
+		bricks_.push_back(brick);
 	}
 }
 

@@ -38,6 +38,9 @@ public:
     virtual void reset();
 
 private:
+	float calculateNextX() const;
+	float calculateNextY() const;
+
     Point tl_;
     Point br_;
     Point margin_;

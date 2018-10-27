@@ -31,11 +31,11 @@ std::shared_ptr<Brick> RectangleBricksLayout::getNext()
     std::shared_ptr<Brick> old = std::make_shared<Brick>(*next_);
     if (hasSpaceHorizontal())
     {
-        next_->setPosition(next_->getPosition() + sf::Vector2f(margin_.x, 0.0f));
+        next_->setPosition(calculateNextX(), next_->getPosition().y);
     }
     else
     {
-        next_->setPosition({tl_.x, next_->getPosition().y + margin_.y});
+        next_->setPosition({ tl_.x + Brick::DEFAULT_WIDTH / 2, calculateNextY() });
     }
     
     return old;
@@ -48,15 +48,26 @@ bool RectangleBricksLayout::hasSpace() const
 
 bool RectangleBricksLayout::hasSpaceHorizontal() const
 {
-    return (next_->getPosition().x + margin_.x <= br_.x);
+    return (calculateNextX() <= br_.x);
 }
 
 bool RectangleBricksLayout::hasSpaceVertical() const
 {
-    return (next_->getPosition().y + margin_.y <= br_.y);
+    return (calculateNextY() <= br_.y);
 }
 
 void RectangleBricksLayout::reset()
 {
-    setNext(std::make_shared<Brick>(tl_.x, tl_.y));
+    setNext(std::make_shared<Brick>(tl_.x + Brick::DEFAULT_WIDTH / 2,
+		tl_.y + Brick::DEFAULT_HEIGHT / 2));
+}
+
+float RectangleBricksLayout::calculateNextX() const
+{
+	return next_->getPosition().x + Brick::DEFAULT_WIDTH + margin_.x;
+}
+
+float RectangleBricksLayout::calculateNextY() const
+{
+	return next_->getPosition().y + Brick::DEFAULT_HEIGHT + margin_.y;
 }
