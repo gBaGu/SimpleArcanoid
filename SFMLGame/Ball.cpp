@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <iterator>
+#include <set>
 
 #include "Setting.h"
 #include "MyMath.h"
@@ -13,6 +14,7 @@ const sf::Vector2f Ball::DEFAULT_VELOCITY = sf::Vector2f(-1.0f, -1.0f);
 
 Ball::Ball(float x, float y)
 	: CircleShape(DEFAULT_RADIUS),
+	areaOfEffect_(0),
 	speed_(DEFAULT_SPEED),
 	velocity_(DEFAULT_VELOCITY)
 {
@@ -29,6 +31,7 @@ Ball::~Ball()
 
 bool Ball::checkCollision(const sf::RectangleShape& rs)
 {
+	//TODO: auto collisionPoints = getCollisions(bricks)
 	if (!isIntersecting(rs))
 	{
 		return false;
@@ -48,6 +51,7 @@ bool Ball::checkCollision(const sf::RectangleShape& rs)
 	}
 
 	setVelocity(ballVelocity);
+	//return collision points
 	return true;
 }
 
@@ -59,6 +63,21 @@ void Ball::changeSpeed(float diff)
 void Ball::changeSpeed(float diff, duration_t dur)
 {
 	speed_.change(diff, dur);
+}
+
+void Ball::hitAffected(const std::vector<std::shared_ptr<Ball::Collision>>& collisions,
+	std::vector<std::shared_ptr<Brick>>& bricks)
+{
+	std::vector<std::shared_ptr<Brick>> affected;
+	std::set<std::shared_ptr<Brick>> tmpBricks(std::begin(bricks), std::end(bricks));
+	for (const auto& collision : collisions)
+	{
+		//TODO: move bricks from tmp to affected
+		//if brick from bricks == collision.brick
+		//or if brick from bricks is in AOE
+	}
+
+	//TODO:: do damage to affected and recalculate velocity after hit
 }
 
 void Ball::setRadius(float r, bool updateOrigin)
@@ -102,10 +121,49 @@ void Ball::update()
 	speed_.removeExpired();
 }
 
+std::shared_ptr<Ball::Collision> Ball::getCollisionPoint(std::shared_ptr<Brick> brick) const
+{
+	auto center = getPosition();
+	auto radius = getRadius();
+	if (isInsideByCrossingNumber(center, *brick))
+	{
+		return std::make_shared<Collision>(center, brick);
+	}
+
+	std::vector<sf::Vector2f> rectPoints;
+	for (int i = 0; i < brick->getPointCount(); i++)
+	{
+		auto point = brick->getPoint(i);
+		auto transform = brick->getTransform();
+		rectPoints.push_back(transform.transformPoint(point));
+	}
+	if (rectPoints.empty())
+	{
+		return nullptr;
+	}
+
+	std::vector<Segment<float>> rectSides;
+	for (auto it = rectPoints.begin(); it != std::prev(rectPoints.end()); it++)
+	{
+		rectSides.emplace_back(*it, *(it + 1));
+	}
+	rectSides.emplace_back(rectPoints.back(), rectPoints.front());
+	for (const auto& rectSide : rectSides)
+	{
+		auto point = closestPoint(center, rectSide);
+		if (length(point - center) < radius)
+		{
+			return std::make_shared<Collision>(point, brick);
+		}
+	}
+	return nullptr;
+}
+
 bool Ball::isIntersecting(const sf::RectangleShape& rs) const
 {
 	auto center = getPosition();
 	auto radius = getRadius();
+	//TODO: maybe move to the end of function
 	if (isInsideByCrossingNumber(center, rs))
 	{
 		return true;

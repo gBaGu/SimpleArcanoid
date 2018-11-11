@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <iterator>
 
 using sf::Keyboard;
 
@@ -129,13 +130,16 @@ void Game::update()
 	{
 		updateDifficulty();
 	}
-	ball_->checkCollision(*paddle_);
-	auto brokenBrick = std::find_if(bricks_.begin(), bricks_.end(),
-		[this](const auto& brick) { return ball_->checkCollision(*brick); });
-	if (brokenBrick != bricks_.end())
-	{
-		bricks_.erase(brokenBrick);
-	}
+
+	std::vector<std::shared_ptr<Ball::Collision>> collisions;
+	std::transform(std::begin(bricks_), std::end(bricks_),
+		std::back_inserter<decltype(collisions)>(collisions),
+		[this](const auto& brick) { return ball_->getCollisionPoint(brick); });
+	collisions.erase(std::remove_if(std::begin(collisions), std::end(collisions),
+		[](const auto& collision) { return !collision; }),
+		std::end(collisions));
+	ball_->hitAffected(collisions, bricks_);
+	
 	modificators_.erase(std::remove_if(modificators_.begin(), modificators_.end(),
 		[this](const auto& mod)
 	{
