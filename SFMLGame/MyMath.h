@@ -72,6 +72,40 @@ T scalarMultiplication(sf::Vector2<T> l, sf::Vector2<T> r)
 }
 
 template <typename T>
+sf::Vector2<T> closestPoint(sf::Vector2<T> p, Segment<T> s)
+{
+	sf::Vector2<T> segmentVector = s.B - s.A;
+	sf::Vector2<T> vectorAtoPoint = p - s.A;
+	sf::Vector2<T> vectorBtoPoint = p - s.B;
+	T scalarA = scalarMultiplication(segmentVector, vectorAtoPoint);
+	T scalarB = scalarMultiplication(segmentVector, vectorBtoPoint);
+
+	//если проекция на прямую, на которой лежит отрезок,
+	//находится вне отрезка (скалярная магия),
+	//возвращаем расстояние до ближайшей точки отрезка
+	if (scalarA < 0 && scalarB < 0 ||
+		scalarA > 0 && scalarB > 0)
+	{
+		return (std::abs(scalarA) < std::abs(scalarB)) ? s.A : s.B;
+	}
+	else
+	{
+		T y = (p.y * (s.B.y - s.A.y) * (s.B.y - s.A.y) + s.A.y * (s.B.x - s.A.x) * (s.B.x - s.A.x) - (s.B.x - s.A.x) * (s.A.x - p.x) * (s.B.y - s.A.y)) /
+			((s.B.y - s.A.y) * (s.B.y - s.A.y) + (s.B.x - s.A.x) * (s.B.x - s.A.x));
+		T x = 0;
+		if (s.B.y - s.A.y != 0)
+		{
+			x = ((s.B.x - s.A.x) * (y - s.A.y)) / (s.B.y - s.A.y) + s.A.x;
+		}
+		else
+		{
+			x = p.x - ((s.B.y - s.A.y) * (y - p.y)) / (s.B.x - s.A.x);
+		}
+		return sf::Vector2<T>(x, y);
+	}
+}
+
+template <typename T>
 T distance(sf::Vector2<T> p, Segment<T> s)
 {
 	sf::Vector2<T> segmentVector = s.B - s.A;
