@@ -131,6 +131,7 @@ void Game::update()
 		updateDifficulty();
 	}
 
+	ball_->checkCollision(*paddle_);
 	std::vector<std::shared_ptr<Ball::Collision>> collisions;
 	std::transform(std::begin(bricks_), std::end(bricks_),
 		std::back_inserter<decltype(collisions)>(collisions),
@@ -139,6 +140,9 @@ void Game::update()
 		[](const auto& collision) { return !collision; }),
 		std::end(collisions));
 	ball_->hitAffected(collisions, bricks_);
+	bricks_.erase(std::remove_if(std::begin(bricks_), std::end(bricks_),
+		[](const auto& brick) { return brick->isBroken(); }),
+		std::end(bricks_));
 	
 	modificators_.erase(std::remove_if(modificators_.begin(), modificators_.end(),
 		[this](const auto& mod)

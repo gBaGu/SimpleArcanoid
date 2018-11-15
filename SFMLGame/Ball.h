@@ -24,11 +24,11 @@ public:
 
 	struct Collision
 	{
-		sf::Vector2f point_;
-		std::shared_ptr<Brick> brick_;
+		sf::Vector2f point;
+		std::shared_ptr<Brick> brick;
 
-		Collision(sf::Vector2f point, std::shared_ptr<Brick> brick)
-			: point_(point), brick_(brick) {}
+		Collision(sf::Vector2f p, std::shared_ptr<Brick> b)
+			: point(p), brick(b) {}
 	};
 
 	SFMLGAME_API Ball(float x, float y);
@@ -59,6 +59,7 @@ public:
 	float getMaxY() const { return getPosition().y + getRadius(); }
 	float getSpeed() const { return speed_.getTotal(); }
 	sf::Vector2f getVelocity() const { return velocity_; }
+	bool inAOE(std::shared_ptr<Brick> brick, sf::Vector2f point) const;
 	/*
 	returns:
 	true if Ball is inside of p or intersecting it

@@ -31,7 +31,6 @@ Ball::~Ball()
 
 bool Ball::checkCollision(const sf::RectangleShape& rs)
 {
-	//TODO: auto collisionPoints = getCollisions(bricks)
 	if (!isIntersecting(rs))
 	{
 		return false;
@@ -72,11 +71,21 @@ void Ball::hitAffected(const std::vector<std::shared_ptr<Ball::Collision>>& coll
 	std::set<std::shared_ptr<Brick>> tmpBricks(std::begin(bricks), std::end(bricks));
 	for (const auto& collision : collisions)
 	{
-		//TODO: move bricks from tmp to affected
-		//if brick from bricks == collision.brick
-		//or if brick from bricks is in AOE
+		std::vector<decltype(tmpBricks)::iterator> toErase;
+		for (auto it = std::begin(tmpBricks); it != std::end(tmpBricks); it++)
+		{
+			if (*it == collision->brick || inAOE(*it, collision->point))
+			{
+				affected.emplace_back(std::move(*it));
+				toErase.push_back(it);
+			}
+		}
+		std::for_each(std::begin(toErase), std::end(toErase),
+			[&tmpBricks](auto it) { tmpBricks.erase(it); });
 	}
 
+	std::for_each(std::begin(affected), std::end(affected),
+		[](auto& brick) { brick->takeHit(); });
 	//TODO:: do damage to affected and recalculate velocity after hit
 }
 
@@ -157,6 +166,13 @@ std::shared_ptr<Ball::Collision> Ball::getCollisionPoint(std::shared_ptr<Brick> 
 		}
 	}
 	return nullptr;
+}
+
+bool Ball::inAOE(std::shared_ptr<Brick> brick, sf::Vector2f point) const
+{
+	//TODO: implement
+	//return call_to_math_function(rect, point, radius);
+	return false;
 }
 
 bool Ball::isIntersecting(const sf::RectangleShape& rs) const
