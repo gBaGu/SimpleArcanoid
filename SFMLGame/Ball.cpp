@@ -64,9 +64,13 @@ void Ball::changeSpeed(float diff, duration_t dur)
 	speed_.change(diff, dur);
 }
 
-void Ball::hitAffected(const std::vector<std::shared_ptr<Ball::Collision>>& collisions,
+void Ball::hitAffected(const std::vector<collision_ptr>& collisions,
 	std::vector<std::shared_ptr<Brick>>& bricks)
 {
+	if (collisions.empty())
+	{
+		return;
+	}
 	std::vector<std::shared_ptr<Brick>> affected;
 	std::set<std::shared_ptr<Brick>> tmpBricks(std::begin(bricks), std::end(bricks));
 	for (const auto& collision : collisions)
@@ -86,7 +90,9 @@ void Ball::hitAffected(const std::vector<std::shared_ptr<Ball::Collision>>& coll
 
 	std::for_each(std::begin(affected), std::end(affected),
 		[](auto& brick) { brick->takeHit(); });
-	//TODO:: do damage to affected and recalculate velocity after hit
+	
+	auto newVelocity = calculateVelocityAfterCollision(collisions);
+	setVelocity(newVelocity);
 }
 
 void Ball::setRadius(float r, bool updateOrigin)
@@ -130,7 +136,21 @@ void Ball::update()
 	speed_.removeExpired();
 }
 
-std::shared_ptr<Ball::Collision> Ball::getCollisionPoint(std::shared_ptr<Brick> brick) const
+sf::Vector2f Ball::calculateVelocityAfterCollision(const std::vector<collision_ptr>& collisions) const
+{
+	auto center = getPosition();
+	auto ballVelocity = getVelocity();
+	sf::Vector2f newVelocity(0.0f, 0.0f);
+	for (const auto& collision : collisions)
+	{
+		sf::Vector2f n = collision->point - center;
+		auto v = ballVelocity - n * (2 * scalarMultiplication(ballVelocity, n) / scalarMultiplication(n, n));
+		newVelocity += v;
+	}
+	return newVelocity;
+}
+
+Ball::collision_ptr Ball::getCollisionPoint(std::shared_ptr<Brick> brick) const
 {
 	auto center = getPosition();
 	auto radius = getRadius();

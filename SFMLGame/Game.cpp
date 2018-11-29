@@ -131,8 +131,9 @@ void Game::update()
 		updateDifficulty();
 	}
 
+	//TODO: make array of RectangleShapes (paddle + bricks)
 	ball_->checkCollision(*paddle_);
-	std::vector<std::shared_ptr<Ball::Collision>> collisions;
+	std::vector<Ball::collision_ptr> collisions;
 	std::transform(std::begin(bricks_), std::end(bricks_),
 		std::back_inserter<decltype(collisions)>(collisions),
 		[this](const auto& brick) { return ball_->getCollisionPoint(brick); });

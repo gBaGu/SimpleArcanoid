@@ -31,6 +31,8 @@ public:
 			: point(p), brick(b) {}
 	};
 
+	using collision_ptr = std::shared_ptr<Collision>;
+
 	SFMLGAME_API Ball(float x, float y);
 	SFMLGAME_API ~Ball();
 
@@ -42,7 +44,7 @@ public:
 	bool checkCollision(const sf::RectangleShape& rs);
 	void changeSpeed(float diff);
 	void changeSpeed(float diff, duration_t dur);
-	void hitAffected(const std::vector<std::shared_ptr<Ball::Collision>>& collisions,
+	void hitAffected(const std::vector<collision_ptr>& collisions,
 		std::vector<std::shared_ptr<Brick>>& bricks);
 	void setRadius(float r, bool updateOrigin);
 	void setSpeed(float speed) { speed_.set(speed); }
@@ -50,8 +52,9 @@ public:
 	void stop();
 	void update();
 	
+	sf::Vector2f calculateVelocityAfterCollision(const std::vector<collision_ptr>& collisions) const;
 	/*returns a collision point if there is one*/
-	std::shared_ptr<Collision> getCollisionPoint(std::shared_ptr<Brick> brick) const;
+	collision_ptr getCollisionPoint(std::shared_ptr<Brick> brick) const;
 	float getBaseSpeed() const { return speed_.getBase(); }
 	float getMinX() const { return getPosition().x - getRadius(); }
 	float getMaxX() const { return getPosition().x + getRadius(); }
