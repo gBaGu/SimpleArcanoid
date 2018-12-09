@@ -32,6 +32,16 @@ struct Ray
 };
 
 
+bool operator==(const sf::RectangleShape& l, const sf::RectangleShape& r)
+{
+	return l.getOrigin() == r.getOrigin() &&
+		l.getPosition() == r.getPosition() &&
+		l.getRotation() == r.getRotation() &&
+		l.getScale() == r.getScale() &&
+		l.getSize() == r.getSize();
+}
+
+
 template <typename T>
 T length(sf::Vector2<T> v)
 {
@@ -250,6 +260,24 @@ std::pair<bool, sf::Vector2<T>> getIntersectionPoint(Ray<T> r, Segment<T> s)
 		p.first = false;
 	}
 	return p;
+}
+
+template <typename T>
+std::pair<bool, sf::Vector2<T>> getIntersectionPoint(Segment<T> s1, Segment<T> s2)
+{
+	auto intersection = getIntersectionPoint(Line<float>(s1.A, s1.B),
+		Line<float>(s2.A, s2.B));
+	if (!intersection.first)
+	{
+		return intersection;
+	}
+
+	if (!isInside(intersection.second, s1.A, s1.B) ||
+		!isInside(intersection.second, s2.A, s2.B))
+	{
+		intersection.first = false;
+	}
+	return intersection;
 }
 
 template <typename T>
