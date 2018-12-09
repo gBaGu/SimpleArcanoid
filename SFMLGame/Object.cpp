@@ -3,9 +3,42 @@
 #include "MyMath.h"
 
 
+Object::Object(sf::Vector2f velocity, float speed)
+	: velocity_(velocity), speed_(speed)
+{
+	normalizeVelocity();
+}
+
 void Object::draw(sf::RenderWindow& window) const
 {
 	window.draw(*shape_);
+}
+
+void Object::update()
+{
+	shape_->move(velocity_ * speed_.getTotal());
+	speed_.removeExpired();
+}
+
+void Object::changeSpeed(float diff)
+{
+	speed_.change(diff);
+}
+
+void Object::changeSpeed(float diff, size_t seconds)
+{
+	speed_.change(diff, duration_t(seconds));
+}
+
+void Object::setSpeed(float speed)
+{
+	speed_.set(speed);
+}
+
+void Object::setVelocity(sf::Vector2f velocity)
+{
+	velocity_ = velocity;
+	normalizeVelocity();
 }
 
 void Object::normalizeVelocity()
@@ -18,10 +51,15 @@ CircleObject::CircleObject(sf::Vector2f velocity, float speed, sf::Vector2f cent
 	: Object(velocity, speed), circle_(radius)
 {
 	setShape(&circle_);
-	normalizeVelocity();
 	circle_.setPosition(center);
 	circle_.setOrigin(radius, radius);
 	circle_.setFillColor(sf::Color::Red);
+}
+
+void CircleObject::setRadius(float radius)
+{
+	circle_.setRadius(radius);
+	circle_.setOrigin(radius, radius);
 }
 
 
