@@ -32,7 +32,7 @@ struct Ray
 };
 
 
-bool operator==(const sf::RectangleShape& l, const sf::RectangleShape& r)
+inline bool operator==(const sf::RectangleShape& l, const sf::RectangleShape& r)
 {
 	return l.getOrigin() == r.getOrigin() &&
 		l.getPosition() == r.getPosition() &&
