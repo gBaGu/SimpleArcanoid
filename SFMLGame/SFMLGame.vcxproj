@@ -153,6 +153,7 @@
     <ClInclude Include="Ball.h" />
     <ClInclude Include="Brick.h" />
     <ClInclude Include="BricksLayout.h" />
+    <ClInclude Include="Destroyable.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Modificator.h" />
     <ClInclude Include="MyMath.h" />
