@@ -11,7 +11,7 @@ Game::Game(const std::string& name, size_t maxFps, std::shared_ptr<BricksLayout>
 	: window_(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), name)	
 {
 	window_.setFramerateLimit(maxFps);
-	ball_ = std::make_shared<Ball>(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
+	ball_ = std::make_shared<Ball>(100, 100/*WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2*/);
 	paddle_ = std::make_shared<Paddle>(WINDOW_WIDTH / 2, WINDOW_HEIGHT - 50);
 	initBricks(bl);
 	try
@@ -60,7 +60,7 @@ void Game::draw()
 	window_.draw(*paddle_);
 	for (const auto& brick : bricks_)
 	{
-		window_.draw(*brick);
+		brick->draw(window_);
 	}
 	for (const auto& mod : modificators_)
 	{
@@ -132,18 +132,23 @@ void Game::update()
 	}
 
 	//TODO: make array of RectangleShapes (paddle + bricks)
-	ball_->checkCollision(*paddle_);
-	std::vector<Ball::collision_ptr> collisions;
+	/*std::vector<Ball::collision_ptr> collisions(bricks_.size());
 	std::transform(std::begin(bricks_), std::end(bricks_),
-		std::back_inserter<decltype(collisions)>(collisions),
-		[this](const auto& brick) { return ball_->getCollisionPoint(brick); });
+		std::begin(collisions),
+		[this](const auto& brick) { return ball_->getCollisionPoint(*brick); });
+	collisions.emplace_back(ball_->getCollisionPoint(*paddle_));
 	collisions.erase(std::remove_if(std::begin(collisions), std::end(collisions),
 		[](const auto& collision) { return !collision; }),
 		std::end(collisions));
-	ball_->hitAffected(collisions, bricks_);
+	ball_->hitAffected(collisions, bricks_);*/
+	std::for_each(std::begin(bricks_), std::end(bricks_),
+		[this](const auto& brick) { return ball_->updateCollision(brick); });
+	//ball_->updateCollision(*paddle_);
+	ball_->hitAffected(bricks_);
 	bricks_.erase(std::remove_if(std::begin(bricks_), std::end(bricks_),
 		[](const auto& brick) { return brick->isBroken(); }),
 		std::end(bricks_));
+	ball_->clearBrokenBrickCollisions(bricks_);
 	
 	modificators_.erase(std::remove_if(modificators_.begin(), modificators_.end(),
 		[this](const auto& mod)

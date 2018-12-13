@@ -6,28 +6,17 @@ const float Brick::DEFAULT_HEIGHT = 20.0f;
 
 
 Brick::Brick(float x, float y)
-	: RectangleShape(sf::Vector2f(DEFAULT_WIDTH, DEFAULT_HEIGHT)),
-	durability_(1)
+	: RectangleObject(sf::Vector2f(0.0f, 0.0f), 0.0f,
+		sf::Vector2f(x, y), sf::Vector2f(DEFAULT_WIDTH, DEFAULT_HEIGHT)),
+	Destroyable(1)
 {
-	setPosition(x, y);
-	setFillColor(sf::Color::Yellow);
-	setOrigin(getSize().x / 2, getSize().y / 2);
 }
 
 Brick::~Brick()
 {
 	if (onDestroy_)
 	{
-		onDestroy_(getPosition().x, getPosition().y);
+		auto center = getPosition();
+		onDestroy_(center.x, center.y);
 	}
-}
-
-void Brick::takeHit(int damage)
-{
-	durability_ -= damage;
-}
-
-void Brick::takeMassiveHit()
-{
-	durability_ = 0;
 }
