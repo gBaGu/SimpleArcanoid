@@ -10,6 +10,7 @@ Brick::Brick(float x, float y)
 		sf::Vector2f(x, y), sf::Vector2f(DEFAULT_WIDTH, DEFAULT_HEIGHT)),
 	Destroyable(1)
 {
+	setFillColor(sf::Color::Yellow);
 }
 
 Brick::~Brick()

@@ -57,7 +57,7 @@ void Game::run()
 void Game::draw()
 {
 	window_.draw(*ball_);
-	window_.draw(*paddle_);
+	paddle_->draw(window_);
 	for (const auto& brick : bricks_)
 	{
 		brick->draw(window_);
@@ -143,7 +143,7 @@ void Game::update()
 	ball_->hitAffected(collisions, bricks_);*/
 	std::for_each(std::begin(bricks_), std::end(bricks_),
 		[this](const auto& brick) { return ball_->updateCollision(brick); });
-	//ball_->updateCollision(*paddle_);
+	ball_->updateCollision(paddle_);
 	ball_->hitAffected(bricks_);
 	bricks_.erase(std::remove_if(std::begin(bricks_), std::end(bricks_),
 		[](const auto& brick) { return brick->isBroken(); }),

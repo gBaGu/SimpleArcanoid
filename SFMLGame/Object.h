@@ -24,6 +24,7 @@ public:
 
 	void changeSpeed(float diff);
 	void changeSpeed(float diff, size_t seconds);
+	void setFillColor(sf::Color color);
 	void setPosition(float x, float y);
 	void setPosition(sf::Vector2f position);
 	void setSpeed(float speed);
@@ -69,6 +70,8 @@ public:
 	RectangleObject(sf::Vector2f velocity, float speed, sf::Vector2f center, sf::Vector2f size);
 	RectangleObject(const RectangleObject& other);
 
+	auto getGlobalBounds() const { return rectangle_.getGlobalBounds(); }
+	std::vector<sf::Vector2f> getPoints() const;
 	std::vector<Segment<float>> getSides() const;
 
 private:

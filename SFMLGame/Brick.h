@@ -1,8 +1,4 @@
 #pragma once
-#include <functional>
-
-#include <SFML\Graphics.hpp>
-
 #include "Object.h"
 #include "Destroyable.h"
 

@@ -37,6 +37,11 @@ void Object::changeSpeed(float diff, size_t seconds)
 	speed_.change(diff, duration_t(seconds));
 }
 
+void Object::setFillColor(sf::Color color)
+{
+	shape_->setFillColor(color);
+}
+
 void Object::setPosition(float x, float y)
 {
 	shape_->setPosition(x, y);
@@ -60,7 +65,10 @@ void Object::setVelocity(sf::Vector2f velocity)
 
 void Object::normalizeVelocity()
 {
-	velocity_ = normalize(velocity_);
+	if (velocity_ != sf::Vector2f(0.0f, 0.0f))
+	{
+		velocity_ = normalize(velocity_);
+	}
 }
 
 
@@ -70,7 +78,6 @@ CircleObject::CircleObject(sf::Vector2f velocity, float speed, sf::Vector2f cent
 	setShape(&circle_);
 	circle_.setPosition(center);
 	circle_.setOrigin(radius, radius);
-	circle_.setFillColor(sf::Color::Red);
 }
 
 CircleObject::CircleObject(const CircleObject& other)
@@ -92,7 +99,6 @@ RectangleObject::RectangleObject(sf::Vector2f velocity, float speed, sf::Vector2
 	setShape(&rectangle_);
 	rectangle_.setPosition(center);
 	rectangle_.setOrigin(size.x / 2, size.y / 2);
-	rectangle_.setFillColor(sf::Color::Yellow);
 }
 
 RectangleObject::RectangleObject(const RectangleObject& other)
@@ -101,7 +107,7 @@ RectangleObject::RectangleObject(const RectangleObject& other)
 	setShape(&rectangle_);
 }
 
-std::vector<Segment<float>> RectangleObject::getSides() const
+std::vector<sf::Vector2f> RectangleObject::getPoints() const
 {
 	std::vector<sf::Vector2f> points;
 	for (int i = 0; i < rectangle_.getPointCount(); i++)
@@ -110,6 +116,12 @@ std::vector<Segment<float>> RectangleObject::getSides() const
 		auto transform = rectangle_.getTransform();
 		points.push_back(transform.transformPoint(point));
 	}
+	return points;
+}
+
+std::vector<Segment<float>> RectangleObject::getSides() const
+{
+	auto points = getPoints();
 	if (points.empty())
 	{
 		throw std::runtime_error("sf::RectangleShape has no points.");

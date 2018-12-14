@@ -1,40 +1,43 @@
 #include "Paddle.h"
 
+#include <algorithm>
+
+#include <SFML\Graphics.hpp>
+
 #include "Setting.h"
 
 
 const float Paddle::DEFAULT_WIDTH = 60.0f;
 const float Paddle::DEFAULT_HEIGHT = 20.0f;
-const float Paddle::DEFAULT_VELOCITY = 6.0f;
+const float Paddle::DEFAULT_SPEED = 6.5f;
 
 
 Paddle::Paddle(float x, float y)
-	: RectangleShape(sf::Vector2f(DEFAULT_WIDTH, DEFAULT_HEIGHT))
+	: RectangleObject(sf::Vector2f(0.0f, 0.0f), DEFAULT_SPEED,
+		sf::Vector2f(x, y), sf::Vector2f(DEFAULT_WIDTH, DEFAULT_HEIGHT))
 {
-	setPosition(x, y);
 	setFillColor(sf::Color::Red);
-	setOrigin(getSize().x / 2, getSize().y / 2);
 }
 
 void Paddle::update()
 {
-	move(velocity);
-
 	using sf::Keyboard;
+	auto points = getPoints();
+	sf::Vector2f newVelocity(0.0f, 0.0f);
 	if (Keyboard::isKeyPressed(Keyboard::Key::Left) &&
 		!Keyboard::isKeyPressed(Keyboard::Key::Right) &&
-		getMinX() > 0)
+		std::all_of(std::begin(points), std::end(points),
+			[](const auto& point) { return point.x > 0; }))
 	{
-		velocity.x = -DEFAULT_VELOCITY;
+		newVelocity.x = -1.0f;
 	}
 	else if (Keyboard::isKeyPressed(Keyboard::Key::Right) &&
 		!Keyboard::isKeyPressed(Keyboard::Key::Left) &&
-		getMaxX() < WINDOW_WIDTH)
+		std::all_of(std::begin(points), std::end(points),
+			[](const auto& point) { return point.x < WINDOW_WIDTH; }))
 	{
-		velocity.x = DEFAULT_VELOCITY;
+		newVelocity.x = 1.0f;
 	}
-	else
-	{
-		velocity.x = 0;
-	}
+	setVelocity(newVelocity);
+	Object::update();
 }
