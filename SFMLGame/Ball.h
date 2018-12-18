@@ -25,11 +25,8 @@ public:
 	struct Collision //TODO: move to Game
 	{
 		sf::Vector2f point; //need to calculate velocity and AOE
-		//sf::Vector2f centerBefore; //?
-		//sf::Vector2f velocityBefore; //?
-		//float speedBefore; //?
 		sf::Vector2f velocityAfter;
-		std::shared_ptr<RectangleObject> obj; //need to find if collision is already in list
+		std::weak_ptr<RectangleObject> obj; //need to find if collision is already in list
 
 		Collision(sf::Vector2f p, sf::Vector2f v, std::shared_ptr<RectangleObject> o)
 			: point(p), velocityAfter(v), obj(o) {}

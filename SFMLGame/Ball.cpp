@@ -54,7 +54,7 @@ void Ball::hitAffected(std::vector<std::shared_ptr<Brick>>& bricks)
 		std::vector<decltype(tmpBricks)::iterator> toErase;
 		for (auto it = std::begin(tmpBricks); it != std::end(tmpBricks); it++)
 		{
-			if (*it == collision->obj || inAOE(*it, collision->point))
+			if (*it == collision->obj.lock() || inAOE(*it, collision->point))
 			{
 				affected.emplace_back(std::move(*it));
 				toErase.push_back(it);
@@ -176,11 +176,12 @@ void Ball::clearBrokenBrickCollisions(const std::vector<std::shared_ptr<Brick>>&
 	auto toRemove = std::remove_if(std::begin(activeCollisions_), std::end(activeCollisions_),
 		[&bricks](const auto& collision)
 	{
-		return std::all_of(std::begin(bricks), std::end(bricks),
+		return collision->obj.expired();
+		/*return std::all_of(std::begin(bricks), std::end(bricks),
 			[&collision](const auto& brick)
 		{
 			return collision->obj != brick;
-		});
+		});*/
 	});
 	activeCollisions_.erase(toRemove, std::end(activeCollisions_));
 }
@@ -230,7 +231,7 @@ Ball::collision_ptr Ball::findCollision(std::shared_ptr<RectangleObject> obj) co
 	auto collisionIt = std::find_if(std::begin(activeCollisions_), std::end(activeCollisions_),
 		[&obj](const auto& col)
 	{
-		return col->obj == obj;
+		return col->obj.lock() == obj;
 	});
 	if (collisionIt != std::end(activeCollisions_))
 	{
