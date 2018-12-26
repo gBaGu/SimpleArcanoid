@@ -16,6 +16,19 @@
 #include "Setting.h"
 
 
+struct Collision
+{
+	sf::Vector2f point; //need to calculate velocity and AOE
+	sf::Vector2f velocityAfter;
+	std::weak_ptr<Object> obj; //need to find if collision is already in list
+
+	Collision(sf::Vector2f p, sf::Vector2f v, std::shared_ptr<Object> o)
+		: point(p), velocityAfter(v), obj(o) {}
+};
+
+using collision_ptr = std::shared_ptr<Collision>;
+
+
 class Game
 {
 public:
@@ -27,6 +40,8 @@ public:
 	void run();
 
 private:
+	void checkGameOver();
+	void clearBrokenBricks();
 	/* draw()
 	draws all objects on window
 	*/
@@ -35,6 +50,15 @@ private:
 	returns window rectangle
 	*/
 	sf::RectangleShape getWindowRect() const;
+	/* findCollision()
+	returns old collision and new collision
+	*/
+	std::pair<collision_ptr, collision_ptr> findCollision(std::shared_ptr<RectangleObject> obj) const;
+	/* findCollision()
+	returns old collision
+	*/
+	collision_ptr findOldCollision(std::shared_ptr<Object> obj) const;
+	void hitAffected();
 	/* initBricks()
 	fills vector of bricks
 	*/
@@ -50,9 +74,19 @@ private:
 	show popup if there is one
 	*/
 	void update();
+	void updateCollision(std::shared_ptr<RectangleObject> obj);
+	/**
+	* For every brick in the game checks
+	*     - if ball had a collision with it on last iteration
+	*     - if ball has a collision with it now
+	* updates the collision list respectively to this conditions
+	*/
+	void updateCollisions();
 	void updateDifficulty();
+	void updateVelocity();
 
 	sf::RenderWindow window_;
+	std::vector<collision_ptr> activeCollisions_;
 	std::shared_ptr<Ball> ball_;
 	std::shared_ptr<Paddle> paddle_;
 	std::vector<std::shared_ptr<Brick>> bricks_;

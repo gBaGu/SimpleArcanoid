@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <iostream>
 #include <iterator>
+#include <numeric>
+#include <set>
 
 using sf::Keyboard;
 
@@ -54,6 +56,26 @@ void Game::run()
 	}
 }
 
+void Game::checkGameOver()
+{
+	if (isBallDropped())
+	{
+		message_ = std::make_unique<PopUpMessage>(window_, "Game Over",
+			font_, duration_t(5));
+		gameOver_ = true;
+	}
+}
+
+void Game::clearBrokenBricks()
+{
+	auto bricksToRemove = std::remove_if(std::begin(bricks_), std::end(bricks_),
+		[](const auto& brick) { return brick->isBroken(); });
+	bricks_.erase(bricksToRemove, std::end(bricks_));
+	auto collisionsToRemove = std::remove_if(std::begin(activeCollisions_), std::end(activeCollisions_),
+		[](const auto& collision) { return collision->obj.expired(); });
+	activeCollisions_.erase(collisionsToRemove, std::end(activeCollisions_));
+}
+
 void Game::draw()
 {
 	window_.draw(*ball_);
@@ -76,6 +98,94 @@ sf::RectangleShape Game::getWindowRect() const
 {
 	sf::RectangleShape r(sf::Vector2f(window_.getSize().x, window_.getSize().y));
 	return r;
+}
+
+std::pair<collision_ptr, collision_ptr> Game::findCollision(std::shared_ptr<RectangleObject> obj) const
+{
+	collision_ptr oldCollision = findOldCollision(obj);
+	collision_ptr collision = nullptr;
+	auto prevCenter = ball_->getPrevCenter();
+	auto center = ball_->getPosition();
+	auto radius = ball_->getRadius();
+	auto rectSides = obj->getSides();
+	std::vector<sf::Vector2f> sideIntersections;
+	for (const auto& rectSide : rectSides)
+	{
+		auto intersection = getIntersectionPoint(Segment<float>(prevCenter, center),
+			Segment<float>(rectSide.A, rectSide.B));
+		if (intersection.first)
+		{
+			sideIntersections.push_back(intersection.second);
+		}
+		auto point = closestPoint(center, rectSide);
+		if (length(point - center) < radius)
+		{
+			collision = oldCollision;
+			if (!collision)
+			{
+				auto velocityAfter = ball_->calculateReflection(point);
+				collision = std::make_shared<Collision>(point, velocityAfter, obj);
+			}
+		}
+	}
+	if (!sideIntersections.empty())
+	{
+		collision = oldCollision;
+		if (!collision)
+		{
+			auto closestIntersection = std::min_element(std::begin(sideIntersections),
+				std::end(sideIntersections),
+				[prevCenter](const auto& l, const auto& r)
+			{
+				return length(l - prevCenter) < length(r - prevCenter);
+			});
+			auto velocityAfter = ball_->calculateReflection(*closestIntersection);
+			collision = std::make_shared<Collision>(*closestIntersection, velocityAfter, obj);
+		}
+	}
+	return std::make_pair(oldCollision, collision);
+}
+
+collision_ptr Game::findOldCollision(std::shared_ptr<Object> obj) const
+{
+	collision_ptr collision = nullptr;
+	auto collisionIt = std::find_if(std::begin(activeCollisions_), std::end(activeCollisions_),
+		[&obj](const auto& col)
+	{
+		return col->obj.lock() == obj;
+	});
+	if (collisionIt != std::end(activeCollisions_))
+	{
+		collision = *collisionIt;
+	}
+	return collision;
+}
+
+void Game::hitAffected()
+{
+	if (activeCollisions_.empty())
+	{
+		return;
+	}
+	std::vector<std::shared_ptr<Brick>> affected;
+	std::set<std::shared_ptr<Brick>> tmpBricks(std::begin(bricks_), std::end(bricks_));
+	for (const auto& collision : activeCollisions_)
+	{
+		std::vector<decltype(tmpBricks)::iterator> toErase;
+		for (auto it = std::begin(tmpBricks); it != std::end(tmpBricks); it++)
+		{
+			if (*it == collision->obj.lock()/*TODO: || inAOE(*it, collision->point)*/)
+			{
+				affected.emplace_back(std::move(*it));
+				toErase.push_back(it);
+			}
+		}
+		std::for_each(std::begin(toErase), std::end(toErase),
+			[&tmpBricks](auto it) { tmpBricks.erase(it); });
+	}
+
+	std::for_each(std::begin(affected), std::end(affected),
+		[](auto& brick) { brick->takeDamage(); });
 }
 
 void Game::initBricks(std::shared_ptr<BricksLayout> bl)
@@ -131,24 +241,10 @@ void Game::update()
 		updateDifficulty();
 	}
 
-	//TODO: make array of RectangleShapes (paddle + bricks)
-	/*std::vector<Ball::collision_ptr> collisions(bricks_.size());
-	std::transform(std::begin(bricks_), std::end(bricks_),
-		std::begin(collisions),
-		[this](const auto& brick) { return ball_->getCollisionPoint(*brick); });
-	collisions.emplace_back(ball_->getCollisionPoint(*paddle_));
-	collisions.erase(std::remove_if(std::begin(collisions), std::end(collisions),
-		[](const auto& collision) { return !collision; }),
-		std::end(collisions));
-	ball_->hitAffected(collisions, bricks_);*/
-	std::for_each(std::begin(bricks_), std::end(bricks_),
-		[this](const auto& brick) { return ball_->updateCollision(brick); });
-	ball_->updateCollision(paddle_);
-	ball_->hitAffected(bricks_);
-	bricks_.erase(std::remove_if(std::begin(bricks_), std::end(bricks_),
-		[](const auto& brick) { return brick->isBroken(); }),
-		std::end(bricks_));
-	ball_->clearBrokenBrickCollisions(bricks_);
+	updateCollisions();
+	hitAffected();
+	updateVelocity();
+	clearBrokenBricks();
 	
 	modificators_.erase(std::remove_if(modificators_.begin(), modificators_.end(),
 		[this](const auto& mod)
@@ -172,12 +268,31 @@ void Game::update()
 			message_.reset();
 		}
 	}
-	if (isBallDropped())
+	checkGameOver();
+}
+
+void Game::updateCollision(std::shared_ptr<RectangleObject> obj)
+{
+	auto collision = findCollision(obj);
+	if (!collision.first && collision.second)
 	{
-		message_ = std::make_unique<PopUpMessage>(window_, "Game Over",
-			font_, duration_t(5));
-		gameOver_ = true;
+		activeCollisions_.push_back(collision.second);
 	}
+	else if (collision.first && !collision.second)
+	{
+		auto toRemove = std::remove(std::begin(activeCollisions_), std::end(activeCollisions_),
+			collision.first);
+		activeCollisions_.erase(toRemove, std::end(activeCollisions_));
+	}
+}
+
+void Game::updateCollisions()
+{
+	for (const auto& brick : bricks_)
+	{
+		updateCollision(brick);
+	}
+	updateCollision(paddle_);
 }
 
 void Game::updateDifficulty()
@@ -187,4 +302,17 @@ void Game::updateDifficulty()
 	message_ = std::make_unique<PopUpMessage>(window_, "Speed up!",
 		font_, duration_t(1));
 	lastUpdateDifficultyTime_ = default_clock::now();
+}
+
+void Game::updateVelocity()
+{
+	if (activeCollisions_.empty())
+	{
+		return;
+	}
+	//Only update ball velocity for now
+	sf::Vector2f newVelocity = std::accumulate(std::begin(activeCollisions_), std::end(activeCollisions_),
+		sf::Vector2f(0.0f, 0.0f),
+		[](sf::Vector2f v, collision_ptr collision) { return v + collision->velocityAfter; });
+	ball_->setVelocity(newVelocity);
 }
