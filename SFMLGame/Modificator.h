@@ -6,6 +6,9 @@
 #include "Ball.h"
 #include "MyTime.h"
 
+//TODO: remove Ball from this file
+// use Object instead
+
 
 class Modificator : public sf::RectangleShape
 {
@@ -14,7 +17,7 @@ public:
 	static const float DEFAULT_HEIGHT;
 	static const float DEFAULT_SPEED;
 	static const sf::Vector2f DEFAULT_VELOCITY;
-	static const duration_t DEFAULT_MODIFICATION_DURATION;
+	static const size_t DEFAULT_MODIFICATION_DURATION;
 
 	Modificator(float x, float y);
 

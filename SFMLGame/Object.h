@@ -17,10 +17,12 @@ public:
 	void draw(sf::RenderWindow& window) const;
 	virtual void update();
 
-	float getBaseSpeed() const { return speed_.getBase(); }
-	sf::Vector2f getPosition() const { return shape_->getPosition(); }
-	float getSpeed() const { return speed_.getTotal(); }
-	sf::Vector2f getVelocity() const { return velocity_; }
+	auto getBaseSpeed() const { return speed_.getBase(); }
+	auto getGlobalBounds() const { return shape_->getGlobalBounds(); }
+	auto getPosition() const { return shape_->getPosition(); }
+	auto getPrevCenter() const { return prevCenter_; }
+	auto getSpeed() const { return speed_.getTotal(); }
+	auto getVelocity() const { return velocity_; }
 
 	void changeSpeed(float diff);
 	void changeSpeed(float diff, size_t seconds);
@@ -29,6 +31,7 @@ public:
 	void setPosition(sf::Vector2f position);
 	void setSpeed(float speed);
 	void setVelocity(sf::Vector2f velocity);
+	void stop();
 
 protected:
 	//normalize velocity vector
@@ -46,6 +49,7 @@ private:
 	sf::Shape* shape_;
 	Attribute<float> speed_;
 	sf::Vector2f velocity_;
+	sf::Vector2f prevCenter_;
 };
 
 
@@ -70,7 +74,6 @@ public:
 	RectangleObject(sf::Vector2f velocity, float speed, sf::Vector2f center, sf::Vector2f size);
 	RectangleObject(const RectangleObject& other);
 
-	auto getGlobalBounds() const { return rectangle_.getGlobalBounds(); }
 	std::vector<sf::Vector2f> getPoints() const;
 	std::vector<Segment<float>> getSides() const;
 

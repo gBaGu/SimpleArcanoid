@@ -23,6 +23,7 @@ void Object::draw(sf::RenderWindow& window) const
 
 void Object::update()
 {
+	prevCenter_ = shape_->getPosition();
 	shape_->move(velocity_ * speed_.getTotal());
 	speed_.removeExpired();
 }
@@ -61,6 +62,11 @@ void Object::setVelocity(sf::Vector2f velocity)
 {
 	velocity_ = velocity;
 	normalizeVelocity();
+}
+
+void Object::stop()
+{
+	speed_.set(0);
 }
 
 void Object::normalizeVelocity()

@@ -18,26 +18,3 @@ Paddle::Paddle(float x, float y)
 {
 	setFillColor(sf::Color::Red);
 }
-
-void Paddle::update()
-{
-	using sf::Keyboard;
-	auto points = getPoints();
-	sf::Vector2f newVelocity(0.0f, 0.0f);
-	if (Keyboard::isKeyPressed(Keyboard::Key::Left) &&
-		!Keyboard::isKeyPressed(Keyboard::Key::Right) &&
-		std::all_of(std::begin(points), std::end(points),
-			[](const auto& point) { return point.x > 0; }))
-	{
-		newVelocity.x = -1.0f;
-	}
-	else if (Keyboard::isKeyPressed(Keyboard::Key::Right) &&
-		!Keyboard::isKeyPressed(Keyboard::Key::Left) &&
-		std::all_of(std::begin(points), std::end(points),
-			[](const auto& point) { return point.x < WINDOW_WIDTH; }))
-	{
-		newVelocity.x = 1.0f;
-	}
-	setVelocity(newVelocity);
-	Object::update();
-}

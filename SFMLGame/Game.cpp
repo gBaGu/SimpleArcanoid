@@ -78,7 +78,7 @@ void Game::clearBrokenBricks()
 
 void Game::draw()
 {
-	window_.draw(*ball_);
+	ball_->draw(window_);
 	paddle_->draw(window_);
 	for (const auto& brick : bricks_)
 	{
@@ -227,10 +227,6 @@ void Game::update()
 	{
 		mod->update();
 	}
-	if (!ball_->isIntersecting(getWindowRect()))
-	{
-		ball_->stop();
-	}
 	if (gameOver_)
 	{
 		return;
@@ -306,13 +302,51 @@ void Game::updateDifficulty()
 
 void Game::updateVelocity()
 {
-	if (activeCollisions_.empty())
+	//BALL
+	if (!ball_->getGlobalBounds().intersects(getWindowRect().getGlobalBounds()))
 	{
-		return;
+		ball_->stop();
 	}
-	//Only update ball velocity for now
-	sf::Vector2f newVelocity = std::accumulate(std::begin(activeCollisions_), std::end(activeCollisions_),
-		sf::Vector2f(0.0f, 0.0f),
-		[](sf::Vector2f v, collision_ptr collision) { return v + collision->velocityAfter; });
-	ball_->setVelocity(newVelocity);
+	else if (!activeCollisions_.empty())
+	{
+		sf::Vector2f newVelocity = std::accumulate(std::begin(activeCollisions_),
+			std::end(activeCollisions_),
+			sf::Vector2f(0.0f, 0.0f),
+			[](sf::Vector2f v, collision_ptr collision) { return v + collision->velocityAfter; });
+		//TODO: Check for window border collision
+		/*auto center = ball_.getPosition();
+		if (getMinX() < 0)
+		{
+			velocity_.x = std::max(velocity_.x, -velocity_.x);
+		}
+		else if (getMaxX() > WINDOW_WIDTH)
+		{
+			velocity_.x = std::min(velocity_.x, -velocity_.x);
+		}
+		if (getMinY() < 0)
+		{
+			velocity_.y = std::max(velocity_.y, -velocity_.y);
+		}
+		*/
+		ball_->setVelocity(newVelocity);
+	}
+	//PADDLE
+	using sf::Keyboard;
+	auto points = paddle_->getPoints();
+	sf::Vector2f newVelocity(0.0f, 0.0f);
+	if (Keyboard::isKeyPressed(Keyboard::Key::Left) &&
+		!Keyboard::isKeyPressed(Keyboard::Key::Right) &&
+		std::all_of(std::begin(points), std::end(points),
+			[](const auto& point) { return point.x > 0; }))
+	{
+		newVelocity.x = -1.0f;
+	}
+	else if (Keyboard::isKeyPressed(Keyboard::Key::Right) &&
+		!Keyboard::isKeyPressed(Keyboard::Key::Left) &&
+		std::all_of(std::begin(points), std::end(points),
+			[](const auto& point) { return point.x < WINDOW_WIDTH; }))
+	{
+		newVelocity.x = 1.0f;
+	}
+	paddle_->setVelocity(newVelocity);
 }

@@ -12,6 +12,4 @@ public:
 	static const float DEFAULT_SPEED;
 
 	Paddle(float x, float y);
-
-	virtual void update();
 };

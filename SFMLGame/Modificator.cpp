@@ -5,7 +5,7 @@ const float Modificator::DEFAULT_WIDTH = 30.0f;
 const float Modificator::DEFAULT_HEIGHT = 10.0f;
 const float Modificator::DEFAULT_SPEED = 7;
 const sf::Vector2f Modificator::DEFAULT_VELOCITY = sf::Vector2f(0.0f, 1.0f);
-const duration_t Modificator::DEFAULT_MODIFICATION_DURATION = duration_t(5);
+const size_t Modificator::DEFAULT_MODIFICATION_DURATION = 5; //seconds
 
 
 Modificator::Modificator(float x, float y)
