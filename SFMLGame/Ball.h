@@ -1,6 +1,7 @@
 #pragma once
 #include <SFML\Graphics.hpp>
 
+#include "Attribute.h"
 #include "Object.h"
 
 #ifdef SFMLGAME_EXPORTS  
@@ -20,4 +21,8 @@ public:
 	Ball(float x, float y);
 
 	sf::Vector2f calculateReflection(sf::Vector2f point) const;
+	auto getAreaOfHit() const { return areaOfHit.getTotal(); }
+
+private:
+	Attribute<int> areaOfHit;
 };

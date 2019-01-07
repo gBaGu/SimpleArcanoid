@@ -174,7 +174,7 @@ void Game::hitAffected()
 		std::vector<decltype(tmpBricks)::iterator> toErase;
 		for (auto it = std::begin(tmpBricks); it != std::end(tmpBricks); it++)
 		{
-			if (*it == collision->obj.lock()/*TODO: || inAOE(*it, collision->point)*/)
+			if (*it == collision->obj.lock() || isInAOE(collision->point, *it))
 			{
 				affected.emplace_back(std::move(*it));
 				toErase.push_back(it);
@@ -217,6 +217,11 @@ bool Game::isDifficultyTimerUp() const
 {
 	auto dur = default_clock::now() - lastUpdateDifficultyTime_;
 	return dur > updateDifficultyDuration_;
+}
+
+bool Game::isInAOE(sf::Vector2f hitPoint, std::shared_ptr<Object> obj) const
+{
+	return obj->calculateDistance(hitPoint) < ball_->getAreaOfHit();
 }
 
 void Game::update()
@@ -303,33 +308,34 @@ void Game::updateDifficulty()
 void Game::updateVelocity()
 {
 	//BALL
+	auto velocity = ball_->getVelocity();
 	if (!ball_->getGlobalBounds().intersects(getWindowRect().getGlobalBounds()))
 	{
-		ball_->stop();
+		velocity = sf::Vector2f(0.0f, 0.0f);
 	}
 	else if (!activeCollisions_.empty())
 	{
-		sf::Vector2f newVelocity = std::accumulate(std::begin(activeCollisions_),
+		velocity = std::accumulate(std::begin(activeCollisions_),
 			std::end(activeCollisions_),
 			sf::Vector2f(0.0f, 0.0f),
 			[](sf::Vector2f v, collision_ptr collision) { return v + collision->velocityAfter; });
-		//TODO: Check for window border collision
-		/*auto center = ball_.getPosition();
-		if (getMinX() < 0)
-		{
-			velocity_.x = std::max(velocity_.x, -velocity_.x);
-		}
-		else if (getMaxX() > WINDOW_WIDTH)
-		{
-			velocity_.x = std::min(velocity_.x, -velocity_.x);
-		}
-		if (getMinY() < 0)
-		{
-			velocity_.y = std::max(velocity_.y, -velocity_.y);
-		}
-		*/
-		ball_->setVelocity(newVelocity);
 	}
+	auto center = ball_->getPosition();
+	auto radius = ball_->getRadius();
+	if (center.x - radius < 0)
+	{
+		velocity.x = std::max(velocity.x, -velocity.x);
+	}
+	else if (center.x + radius > WINDOW_WIDTH)
+	{
+		velocity.x = std::min(velocity.x, -velocity.x);
+	}
+	if (center.y - radius < 0)
+	{
+		velocity.y = std::max(velocity.y, -velocity.y);
+	}
+	ball_->setVelocity(velocity);
+
 	//PADDLE
 	using sf::Keyboard;
 	auto points = paddle_->getPoints();

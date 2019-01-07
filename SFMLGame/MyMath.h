@@ -32,16 +32,6 @@ struct Ray
 };
 
 
-inline bool operator==(const sf::RectangleShape& l, const sf::RectangleShape& r)
-{
-	return l.getOrigin() == r.getOrigin() &&
-		l.getPosition() == r.getPosition() &&
-		l.getRotation() == r.getRotation() &&
-		l.getScale() == r.getScale() &&
-		l.getSize() == r.getSize();
-}
-
-
 template <typename T>
 T length(sf::Vector2<T> v)
 {
@@ -171,6 +161,7 @@ bool isContaining(Segment<T> s, sf::Vector2<T> p)
 	return isContaining(Line<T>(s.A, s.B), p) && isInside(p, s.A, s.B);
 }
 
+//ONLY FOR RECTS WITH VERTICAL/HORIZONTAL ORIENTED SIDES
 //checks if point is inside of rectangle created by two points
 template <typename T>
 bool isInside(sf::Vector2<T> p, sf::Vector2<T> boundP1, sf::Vector2<T> boundP2)

@@ -68,6 +68,7 @@ private:
 	*/
 	bool isBallDropped() const;
 	bool isDifficultyTimerUp() const;
+	bool isInAOE(sf::Vector2f hitPoint, std::shared_ptr<Object> obj) const;
 	/* update()
 	updates all objects:
 	check for collisions, recalculate velocity,

@@ -17,6 +17,7 @@ public:
 	void draw(sf::RenderWindow& window) const;
 	virtual void update();
 
+	virtual float calculateDistance(sf::Vector2f point) const = 0;
 	auto getBaseSpeed() const { return speed_.getBase(); }
 	auto getGlobalBounds() const { return shape_->getGlobalBounds(); }
 	auto getPosition() const { return shape_->getPosition(); }
@@ -59,7 +60,8 @@ public:
 	CircleObject(sf::Vector2f velocity, float speed, sf::Vector2f center, float radius);
 	CircleObject(const CircleObject& other);
 
-	float getRadius() const { return circle_.getRadius(); }
+	virtual float calculateDistance(sf::Vector2f point) const;
+	auto getRadius() const { return circle_.getRadius(); }
 
 	void setRadius(float radius);
 
@@ -74,6 +76,7 @@ public:
 	RectangleObject(sf::Vector2f velocity, float speed, sf::Vector2f center, sf::Vector2f size);
 	RectangleObject(const RectangleObject& other);
 
+	virtual float calculateDistance(sf::Vector2f point) const;
 	std::vector<sf::Vector2f> getPoints() const;
 	std::vector<Segment<float>> getSides() const;
 

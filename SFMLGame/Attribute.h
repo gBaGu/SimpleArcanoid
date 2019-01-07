@@ -14,6 +14,9 @@ class Attribute
 	};
 
 public:
+	Attribute()
+		: base_()
+	{}
 	Attribute(T value)
 		: base_(value)
 	{}

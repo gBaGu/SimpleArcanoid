@@ -1,6 +1,8 @@
 #include "Object.h"
 
-#include <iostream>
+#include <algorithm>
+#include <valarray>
+#include <iterator>
 
 #include "MyMath.h"
 
@@ -92,6 +94,15 @@ CircleObject::CircleObject(const CircleObject& other)
 	setShape(&circle_);
 }
 
+float CircleObject::calculateDistance(sf::Vector2f point) const
+{
+	auto vec = point - getPosition();
+	auto distCenterToPoint = length(vec);
+	return distCenterToPoint > getRadius() ?
+		distCenterToPoint :
+		0.0f;
+}
+
 void CircleObject::setRadius(float radius)
 {
 	circle_.setRadius(radius);
@@ -111,6 +122,18 @@ RectangleObject::RectangleObject(const RectangleObject& other)
 	: Object(other.getVelocity(), other.getBaseSpeed()), rectangle_(other.rectangle_)
 {
 	setShape(&rectangle_);
+}
+
+float RectangleObject::calculateDistance(sf::Vector2f point) const
+{
+	auto sides = getSides();
+	std::valarray<float> distances(sides.size());
+	std::transform(std::begin(sides), std::end(sides),
+		std::begin(distances),
+		[&point](const auto& side) { return distance(point, side); });
+	return distances.sum() > (rectangle_.getSize().x + rectangle_.getSize().y) ?
+		distances.min() :
+		0.0f;
 }
 
 std::vector<sf::Vector2f> RectangleObject::getPoints() const
