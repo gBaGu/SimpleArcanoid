@@ -1,10 +1,6 @@
 #include "Paddle.h"
 
-#include <algorithm>
-
 #include <SFML\Graphics.hpp>
-
-#include "Setting.h"
 
 
 const float Paddle::DEFAULT_WIDTH = 60.0f;

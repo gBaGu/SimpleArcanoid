@@ -1,10 +1,6 @@
 #include "Ball.h"
 
-#include <algorithm>
-#include <iterator>
-
 #include "MyMath.h"
-#include "Setting.h"
 
 
 const float Ball::DEFAULT_RADIUS = 10.0f;

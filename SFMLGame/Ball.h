@@ -1,11 +1,6 @@
 #pragma once
-#include <memory>
-#include <vector>
-
 #include <SFML\Graphics.hpp>
 
-#include "Attribute.h"
-#include "MyTime.h"
 #include "Object.h"
 
 #ifdef SFMLGAME_EXPORTS  
