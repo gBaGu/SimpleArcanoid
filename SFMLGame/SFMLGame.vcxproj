@@ -147,7 +147,7 @@
     <ClCompile Include="BricksLayout.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Modificator.cpp" />
+    <ClCompile Include="Modifier.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Paddle.cpp" />
     <ClCompile Include="PopUpMessage.cpp" />
@@ -159,7 +159,7 @@
     <ClInclude Include="BricksLayout.h" />
     <ClInclude Include="Destroyable.h" />
     <ClInclude Include="Game.h" />
-    <ClInclude Include="Modificator.h" />
+    <ClInclude Include="Modifier.h" />
     <ClInclude Include="MyMath.h" />
     <ClInclude Include="MyTime.h" />
     <ClInclude Include="Object.h" />

@@ -9,7 +9,7 @@
 #include "Ball.h"
 #include "Brick.h"
 #include "BricksLayout.h"
-#include "Modificator.h"
+#include "Modifier.h"
 #include "MyTime.h"
 #include "Paddle.h"
 #include "PopUpMessage.h"
@@ -91,7 +91,7 @@ private:
 	std::shared_ptr<Ball> ball_;
 	std::shared_ptr<Paddle> paddle_;
 	std::vector<std::shared_ptr<Brick>> bricks_;
-	std::vector<std::shared_ptr<Modificator>> modificators_;
+	std::vector<std::shared_ptr<Modifier>> modifiers_;
 	sf::Font font_;
 	std::unique_ptr<PopUpMessage> message_;
 	const duration_t updateDifficultyDuration_ = duration_t(10);

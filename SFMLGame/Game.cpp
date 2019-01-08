@@ -84,9 +84,9 @@ void Game::draw()
 	{
 		brick->draw(window_);
 	}
-	for (const auto& mod : modificators_)
+	for (const auto& mod : modifiers_)
 	{
-		window_.draw(*mod);
+		mod->draw(window_);
 	}
 	if (message_)
 	{
@@ -192,11 +192,11 @@ void Game::initBricks(std::shared_ptr<BricksLayout> bl)
 {
 	bricks_.clear();
 	bricks_.reserve(COUNT_BRICKS_X * COUNT_BRICKS_Y);
-	auto onDestroy = [ball = this->ball_, &mods = this->modificators_](float x, float y)
+	auto onDestroy = [ball = this->ball_, &mods = this->modifiers_](float x, float y)
 	{
 		if (rand() % 100 < 10)
 		{
-			std::shared_ptr<Modificator> mod = std::make_shared<BallSpeedPositiveModificator>(x, y, ball);
+			std::shared_ptr<Modifier> mod = std::make_shared<ObjectSpeedPositiveModifier>(x, y, ball);
 			mods.push_back(mod);
 		}
 	};
@@ -228,7 +228,7 @@ void Game::update()
 {
 	ball_->update();
 	paddle_->update();
-	for (auto& mod : modificators_)
+	for (auto& mod : modifiers_)
 	{
 		mod->update();
 	}
@@ -247,7 +247,7 @@ void Game::update()
 	updateVelocity();
 	clearBrokenBricks();
 	
-	modificators_.erase(std::remove_if(modificators_.begin(), modificators_.end(),
+	modifiers_.erase(std::remove_if(modifiers_.begin(), modifiers_.end(),
 		[this](const auto& mod)
 	{
 		auto modRect = mod->getGlobalBounds();
@@ -260,7 +260,7 @@ void Game::update()
 		}
 		return !windowRect.intersects(modRect);
 	}),
-		modificators_.end());
+		modifiers_.end());
 
 	if (message_)
 	{

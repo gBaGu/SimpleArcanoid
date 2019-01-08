@@ -5,12 +5,10 @@
 
 #include "Ball.h"
 #include "MyTime.h"
-
-//TODO: remove Ball from this file
-// use Object instead
+#include "Object.h"
 
 
-class Modificator : public sf::RectangleShape
+class Modifier : public RectangleObject
 {
 public:
 	static const float DEFAULT_WIDTH;
@@ -19,28 +17,25 @@ public:
 	static const sf::Vector2f DEFAULT_VELOCITY;
 	static const size_t DEFAULT_MODIFICATION_DURATION;
 
-	Modificator(float x, float y);
+	Modifier(float x, float y);
 
 	virtual void trigger() = 0;
-	void update();
 
 private:
-	float speed_;
-	sf::Vector2f velocity_;
 };
 
 
-class BallSpeedPositiveModificator : public Modificator
+class ObjectSpeedPositiveModifier : public Modifier
 {
 public:
 	static const float DEFAULT_MULTIPLIER;
 
-	BallSpeedPositiveModificator(float x, float y, std::shared_ptr<Ball> ball)
-		: Modificator(x, y), ball_(ball)
+	ObjectSpeedPositiveModifier(float x, float y, std::shared_ptr<Object> obj)
+		: Modifier(x, y), obj_(obj)
 	{}
 
 	virtual void trigger();
 
 private:
-	std::shared_ptr<Ball> ball_;
+	std::shared_ptr<Object> obj_;
 };
