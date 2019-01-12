@@ -65,6 +65,10 @@ public:
 
 	void setRadius(float radius);
 
+protected:
+	auto& getCircle() { return circle_; }
+	const auto& getCircle() const { return circle_; }
+
 private:
 	sf::CircleShape circle_;
 };
@@ -79,6 +83,10 @@ public:
 	virtual float calculateDistance(sf::Vector2f point) const;
 	std::vector<sf::Vector2f> getPoints() const;
 	std::vector<Segment<float>> getSides() const;
+
+protected:
+	auto& getRectangle() { return rectangle_; }
+	const auto& getRectangle() const { return rectangle_; }
 
 private:
 	sf::RectangleShape rectangle_;

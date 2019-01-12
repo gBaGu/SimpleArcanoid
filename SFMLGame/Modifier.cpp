@@ -22,3 +22,18 @@ void ObjectSpeedPositiveModifier::trigger()
 	auto speedDiff = -obj_->getBaseSpeed() * DEFAULT_MULTIPLIER;
 	obj_->changeSpeed(speedDiff, DEFAULT_MODIFICATION_DURATION);
 }
+
+
+const int BallHitPositiveModifier::DEFAULT_GAIN = 20;
+
+void BallHitPositiveModifier::trigger()
+{
+	auto areaDiff = DEFAULT_GAIN;
+	obj_->changeAreaOfHit(areaDiff, DEFAULT_MODIFICATION_DURATION);
+}
+
+
+void BallSizePositiveModifier::trigger()
+{
+	obj_->grow();
+}

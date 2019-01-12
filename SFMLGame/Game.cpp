@@ -194,9 +194,22 @@ void Game::initBricks(std::shared_ptr<BricksLayout> bl)
 	bricks_.reserve(COUNT_BRICKS_X * COUNT_BRICKS_Y);
 	auto onDestroy = [ball = this->ball_, &mods = this->modifiers_](float x, float y)
 	{
-		if (rand() % 100 < 10)
+		std::shared_ptr<Modifier> mod = nullptr;
+		auto rand = std::rand() % 100;
+		if (rand < 5)
 		{
-			std::shared_ptr<Modifier> mod = std::make_shared<ObjectSpeedPositiveModifier>(x, y, ball);
+			mod = std::make_shared<ObjectSpeedPositiveModifier>(x, y, ball);
+		}
+		else if (rand < 10)
+		{
+			mod = std::make_shared<BallHitPositiveModifier>(x, y, ball);
+		}
+		else if (rand < 15)
+		{
+			mod = std::make_shared<BallSizePositiveModifier>(x, y, ball);
+		}
+		if (mod)
+		{
 			mods.push_back(mod);
 		}
 	};

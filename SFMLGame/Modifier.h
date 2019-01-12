@@ -39,3 +39,33 @@ public:
 private:
 	std::shared_ptr<Object> obj_;
 };
+
+
+class BallHitPositiveModifier : public Modifier
+{
+public:
+	static const int DEFAULT_GAIN;
+
+	BallHitPositiveModifier(float x, float y, std::shared_ptr<Ball> obj)
+		: Modifier(x, y), obj_(obj)
+	{}
+
+	virtual void trigger();
+
+private:
+	std::shared_ptr<Ball> obj_;
+};
+
+
+class BallSizePositiveModifier : public Modifier
+{
+public:
+	BallSizePositiveModifier(float x, float y, std::shared_ptr<Ball> obj)
+		: Modifier(x, y), obj_(obj)
+	{}
+
+	virtual void trigger();
+
+private:
+	std::shared_ptr<Ball> obj_;
+};
