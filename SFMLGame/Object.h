@@ -61,7 +61,7 @@ public:
 	CircleObject(const CircleObject& other);
 
 	virtual float calculateDistance(sf::Vector2f point) const;
-	auto getRadius() const { return circle_.getRadius(); }
+	auto getRadius() const { return circle_.getRadius() * circle_.getScale().x; } //suppose scale.x and scale.y are equal
 
 	void setRadius(float radius);
 
