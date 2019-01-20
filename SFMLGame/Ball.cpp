@@ -40,6 +40,7 @@ const sf::Vector2f Ball::DEFAULT_VELOCITY = sf::Vector2f(-1.0f, -1.0f);
 Ball::Ball(float x, float y)
 	: CircleObject(sf::Vector2f(0.0f, 0.0f), DEFAULT_SPEED,
 		sf::Vector2f(x, y), DEFAULT_RADIUS),
+		areaOfHit_(0, 0, 50),
 		sizeCtrl_(getCircle())
 {
 	setFillColor(sf::Color::Red);

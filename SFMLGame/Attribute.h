@@ -1,5 +1,6 @@
 #pragma once
 #include <algorithm>
+#include <numeric>
 #include <vector>
 
 #include "MyTime.h"
@@ -14,11 +15,13 @@ class Attribute
 	};
 
 public:
-	Attribute()
-		: base_()
-	{}
 	Attribute(T value)
-		: base_(value)
+		: base_(value), min_()
+	{
+		max_ = std::numeric_limits<T>::max();
+	}
+	Attribute(T value, T min, T max)
+		: base_(value), min_(min), max_(max)
 	{}
 
 	T getTotal() const;
@@ -31,18 +34,16 @@ public:
 
 private:
 	T base_;
+	T min_, max_;
 	std::vector<Change> changes_;
 };
 
 template<class T>
 T Attribute<T>::getTotal() const
 {
-	auto value = base_;
-	for (const auto& change : changes_)
-	{
-		value += change.diff;
-	}
-	return value;
+	auto value = std::accumulate(std::begin(changes_), std::end(changes_), base_,
+		[](const T& val, const Change& ch) { return val + ch.diff; });
+	return std::max(min_, std::min(max_, value));
 }
 
 template<class T>
