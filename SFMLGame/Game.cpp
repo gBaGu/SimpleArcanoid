@@ -102,45 +102,58 @@ sf::RectangleShape Game::getWindowRect() const
 
 std::pair<collision_ptr, collision_ptr> Game::findCollision(std::shared_ptr<RectangleObject> obj) const
 {
+	using intersection_t = std::pair<bool, sf::Vector2f>;
 	collision_ptr oldCollision = findOldCollision(obj);
 	collision_ptr collision = nullptr;
 	auto prevCenter = ball_->getPrevCenter();
 	auto center = ball_->getPosition();
 	auto radius = ball_->getRadius();
 	auto rectSides = obj->getSides();
-	std::vector<sf::Vector2f> sideIntersections;
+	std::vector<std::pair<sf::Vector2f, float>> byCenter, byRadius;
 	for (const auto& rectSide : rectSides)
 	{
+		//fill byCenter
 		auto intersection = getIntersectionPoint(Segment<float>(prevCenter, center),
 			Segment<float>(rectSide.A, rectSide.B));
 		if (intersection.first)
 		{
-			sideIntersections.push_back(intersection.second);
+			auto l = length(intersection.second - prevCenter);
+			byCenter.emplace_back(intersection.second, l);
 		}
-		auto point = closestPoint(center, rectSide);
-		if (length(point - center) < radius)
+		//fill byRadius
+		if (byCenter.empty()) //there is no point to do this when we know
+						//that ball`s center had intersected one of rect`s line
 		{
-			collision = oldCollision;
-			if (!collision)
+			auto point = closestPoint(center, rectSide);
+			auto l = length(point - center);
+			if (l < radius)
 			{
-				auto velocityAfter = ball_->calculateReflection(point);
-				collision = std::make_shared<Collision>(point, velocityAfter, obj);
+				byRadius.emplace_back(point, l);
 			}
 		}
 	}
-	if (!sideIntersections.empty())
+	if (!byCenter.empty())
+	{ //we know there is a collision so if
+		//we have already had collision with this obj on the previous step
+		//return old collision
+		collision = oldCollision;
+		if (!collision)
+		{
+			auto closest = std::min_element(std::begin(byCenter), std::end(byCenter),
+				[](const auto& l, const auto& r) { return l.second < r.second; });
+			auto velocityAfter = ball_->calculateReflection(closest->first);
+			collision = std::make_shared<Collision>(closest->first, velocityAfter, obj);
+		}
+	}
+	else if (!byRadius.empty())
 	{
 		collision = oldCollision;
 		if (!collision)
 		{
-			auto closestIntersection = std::min_element(std::begin(sideIntersections),
-				std::end(sideIntersections),
-				[prevCenter](const auto& l, const auto& r)
-			{
-				return length(l - prevCenter) < length(r - prevCenter);
-			});
-			auto velocityAfter = ball_->calculateReflection(*closestIntersection);
-			collision = std::make_shared<Collision>(*closestIntersection, velocityAfter, obj);
+			auto closest = std::min_element(std::begin(byRadius), std::end(byRadius),
+				[](const auto& l, const auto& r) { return l.second < r.second; });
+			auto velocityAfter = ball_->calculateReflection(closest->first);
+			collision = std::make_shared<Collision>(closest->first, velocityAfter, obj);
 		}
 	}
 	return std::make_pair(oldCollision, collision);
