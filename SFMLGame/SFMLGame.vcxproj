@@ -159,6 +159,7 @@
     <ClInclude Include="BricksLayout.h" />
     <ClInclude Include="Destroyable.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="Interface.h" />
     <ClInclude Include="Modifier.h" />
     <ClInclude Include="MyMath.h" />
     <ClInclude Include="MyTime.h" />
