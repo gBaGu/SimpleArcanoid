@@ -10,23 +10,31 @@ using sf::Keyboard;
 
 
 Game::Game(const std::string& name, size_t maxFps, std::shared_ptr<BricksLayout> bl)
-	: window_(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), name)	
+	: state_(State::Menu)
 {
-	window_.setFramerateLimit(maxFps);
+	window_ = std::make_shared<sf::RenderWindow>(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), name);
+	window_->setFramerateLimit(maxFps);
 	ball_ = std::make_shared<Ball>(100, 100/*WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2*/);
 	paddle_ = std::make_shared<Paddle>(WINDOW_WIDTH / 2, WINDOW_HEIGHT - 50);
 	initBricks(bl);
-	try
+	ball_->setVisible(false);
+	paddle_->setVisible(false);
+	std::for_each(std::begin(bricks_), std::end(bricks_),
+		[](auto& brick) { brick->setVisible(false); });
+	interface_ = std::make_unique<interface::Interface>(window_,
+		[this]()
 	{
-		if (!font_.loadFromFile("data/arial.ttf"))
-		{
-			std::cout << "Failed to load font" << std::endl;
-		}
-	}
-	catch (const std::exception& ex)
+		state_ = State::Playing;
+		ball_->setVisible(true);
+		paddle_->setVisible(true);
+		std::for_each(std::begin(bricks_), std::end(bricks_),
+			[](auto& brick) { brick->setVisible(true); });
+	},
+		[this]()
 	{
-		std::cout << ex.what() << std::endl;
-	}
+		window_->close();
+		running_ = false;
+	});
 }
 
 void Game::run()
@@ -35,16 +43,16 @@ void Game::run()
 	while (running_)
 	{
 		sf::Event event;
-		while (window_.pollEvent(event))
+		while (window_->pollEvent(event))
 		{
 			if (event.type == sf::Event::Closed)
 			{
-				window_.close();
+				window_->close();
 				running_ = false;
 			}
 		}
 
-		window_.clear(sf::Color::Black);
+		window_->clear(sf::Color::Black);
 		if (Keyboard::isKeyPressed(Keyboard::Key::Escape))
 		{
 			running_ = false;
@@ -52,7 +60,7 @@ void Game::run()
 
 		update();
 		draw();
-		window_.display();
+		window_->display();
 	}
 }
 
@@ -60,8 +68,7 @@ void Game::checkGameOver()
 {
 	if (isBallDropped())
 	{
-		message_ = std::make_unique<PopUpMessage>(window_, "Game Over",
-			font_, duration_t(5));
+		interface_->showMessage("Game Over");
 		gameOver_ = true;
 	}
 }
@@ -78,25 +85,22 @@ void Game::clearBrokenBricks()
 
 void Game::draw()
 {
-	ball_->draw(window_);
-	paddle_->draw(window_);
+	interface_->draw(*window_);
+	ball_->draw(*window_);
+	paddle_->draw(*window_);
 	for (const auto& brick : bricks_)
 	{
-		brick->draw(window_);
+		brick->draw(*window_);
 	}
 	for (const auto& mod : modifiers_)
 	{
-		mod->draw(window_);
-	}
-	if (message_)
-	{
-		window_.draw(*message_);
+		mod->draw(*window_);
 	}
 }
 
 sf::RectangleShape Game::getWindowRect() const
 {
-	sf::RectangleShape r(sf::Vector2f(window_.getSize().x, window_.getSize().y));
+	sf::RectangleShape r(sf::Vector2f(window_->getSize().x, window_->getSize().y));
 	return r;
 }
 
@@ -252,6 +256,13 @@ bool Game::isInAOE(sf::Vector2f hitPoint, std::shared_ptr<Object> obj) const
 
 void Game::update()
 {
+	interface_->update();
+
+	if (state_ != State::Playing)
+	{
+		return;
+	}
+
 	ball_->update();
 	paddle_->update();
 	for (auto& mod : modifiers_)
@@ -288,13 +299,6 @@ void Game::update()
 	}),
 		modifiers_.end());
 
-	if (message_)
-	{
-		if (message_->isExpired())
-		{
-			message_.reset();
-		}
-	}
 	checkGameOver();
 }
 
@@ -326,8 +330,7 @@ void Game::updateDifficulty()
 {
 	auto speedDiff = ball_->getBaseSpeed() * 0.1;
 	ball_->changeSpeed(speedDiff);
-	message_ = std::make_unique<PopUpMessage>(window_, "Speed up!",
-		font_, duration_t(1));
+	interface_->showMessage("Speed up!");
 	lastUpdateDifficultyTime_ = default_clock::now();
 }
 

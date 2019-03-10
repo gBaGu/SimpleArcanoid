@@ -30,9 +30,6 @@
     <ClCompile Include="Game.cpp">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
-    <ClCompile Include="PopUpMessage.cpp">
-      <Filter>Файлы исходного кода</Filter>
-    </ClCompile>
     <ClCompile Include="BricksLayout.cpp">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
@@ -40,6 +37,9 @@
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
     <ClCompile Include="Modifier.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="Interface.cpp">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
   </ItemGroup>
@@ -60,9 +60,6 @@
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
     <ClInclude Include="Game.h">
-      <Filter>Заголовочные файлы</Filter>
-    </ClInclude>
-    <ClInclude Include="PopUpMessage.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
     <ClInclude Include="MyTime.h">

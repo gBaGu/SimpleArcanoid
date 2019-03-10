@@ -9,10 +9,10 @@
 #include "Ball.h"
 #include "Brick.h"
 #include "BricksLayout.h"
+#include "Interface.h"
 #include "Modifier.h"
 #include "MyTime.h"
 #include "Paddle.h"
-#include "PopUpMessage.h"
 #include "Setting.h"
 
 
@@ -38,6 +38,8 @@ public:
 	standart game loop: clear()->update()->draw()->display()
 	*/
 	void run();
+
+	enum class State { Menu, Playing };
 
 private:
 	void checkGameOver();
@@ -86,14 +88,14 @@ private:
 	void updateDifficulty();
 	void updateVelocity();
 
-	sf::RenderWindow window_;
+	State state_;
+	std::shared_ptr<sf::RenderWindow> window_;
+	std::unique_ptr<interface::Interface> interface_;
 	std::vector<collision_ptr> activeCollisions_;
 	std::shared_ptr<Ball> ball_;
 	std::shared_ptr<Paddle> paddle_;
 	std::vector<std::shared_ptr<Brick>> bricks_;
 	std::vector<std::shared_ptr<Modifier>> modifiers_;
-	sf::Font font_;
-	std::unique_ptr<PopUpMessage> message_;
 	const duration_t updateDifficultyDuration_ = duration_t(10);
 	time_point_t lastUpdateDifficultyTime_ = default_clock::now();
 	bool running_ = false;

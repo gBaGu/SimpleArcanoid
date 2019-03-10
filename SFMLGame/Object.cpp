@@ -8,7 +8,7 @@
 
 
 Object::Object(sf::Vector2f velocity, float speed)
-	: show_(true), velocity_(velocity), speed_(speed)
+	: visible_(true), velocity_(velocity), speed_(speed)
 {
 	normalizeVelocity();
 }
@@ -20,7 +20,7 @@ Object::~Object()
 
 void Object::draw(sf::RenderWindow& window) const
 {
-	if (show_)
+	if (visible_)
 	{
 		window.draw(*drawable_);
 	}
@@ -56,6 +56,11 @@ void Object::setPosition(sf::Vector2f position)
 void Object::setSpeed(float speed)
 {
 	speed_.set(speed);
+}
+
+void Object::setVisible(bool visible)
+{
+	visible_ = visible;
 }
 
 void Object::setVelocity(sf::Vector2f velocity)
@@ -179,9 +184,9 @@ TextObject::TextObject(sf::Vector2f velocity, float speed, sf::Vector2f center,
 {
 	setDrawable(&text_);
 	setTransformable(&text_);
-	text_.setPosition(center);
 	auto textRect = text_.getLocalBounds();
 	text_.setOrigin(textRect.width / 2, textRect.height / 2);
+	text_.setPosition(center);
 }
 
 TextObject::TextObject(const TextObject& other)
@@ -222,4 +227,6 @@ void TextObject::setFillColor(sf::Color color)
 void TextObject::setText(const std::string& text)
 {
 	text_.setString(text);
+	auto textRect = text_.getLocalBounds();
+	text_.setOrigin(textRect.width / 2, textRect.height / 2);
 }

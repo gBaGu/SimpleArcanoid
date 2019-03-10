@@ -146,11 +146,11 @@
     <ClCompile Include="Brick.cpp" />
     <ClCompile Include="BricksLayout.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="Interface.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Modifier.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Paddle.cpp" />
-    <ClCompile Include="PopUpMessage.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Attribute.h" />
@@ -165,7 +165,6 @@
     <ClInclude Include="MyTime.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Paddle.h" />
-    <ClInclude Include="PopUpMessage.h" />
     <ClInclude Include="Setting.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

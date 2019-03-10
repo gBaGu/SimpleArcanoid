@@ -23,12 +23,14 @@ public:
 	auto getPrevCenter() const { return prevCenter_; }
 	auto getSpeed() const { return speed_.getTotal(); }
 	auto getVelocity() const { return velocity_; }
+	bool isVisible() const { return visible_; }
 
 	void changeSpeed(float diff);
 	void changeSpeed(float diff, size_t seconds);
 	void setPosition(float x, float y);
 	void setPosition(sf::Vector2f position);
 	void setSpeed(float speed);
+	void setVisible(bool visible);
 	void setVelocity(sf::Vector2f velocity);
 
 protected:
@@ -42,7 +44,7 @@ protected:
 	void setTransformable(sf::Transformable* transformable) { transformable_ = transformable; }
 
 private:
-	bool show_;
+	bool visible_;
 	//this is pointer to sf::Shape defined in child classes
 	//child should set it manually
 	//this is needed to make draw method not virtual
