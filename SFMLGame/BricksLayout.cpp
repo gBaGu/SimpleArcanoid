@@ -10,6 +10,7 @@ BricksLayout::BricksLayout()
 
 void BricksLayout::reset()
 {
+	hasNext_ = true;
     setNext(std::make_shared<Brick>(0.0f, 0.0f));
 }
 
@@ -58,6 +59,7 @@ bool RectangleBricksLayout::hasSpaceVertical() const
 
 void RectangleBricksLayout::reset()
 {
+	BricksLayout::reset();
     setNext(std::make_shared<Brick>(tl_.x + Brick::DEFAULT_WIDTH / 2,
 		tl_.y + Brick::DEFAULT_HEIGHT / 2));
 }

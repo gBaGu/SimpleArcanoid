@@ -10,13 +10,13 @@ using sf::Keyboard;
 
 
 Game::Game(const std::string& name, size_t maxFps, std::shared_ptr<BricksLayout> bl)
-	: state_(State::Menu)
+	: state_(State::Menu), bl_(bl)
 {
 	window_ = std::make_shared<sf::RenderWindow>(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), name);
 	window_->setFramerateLimit(maxFps);
-	ball_ = std::make_shared<Ball>(100, 100/*WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2*/);
+	ball_ = std::make_shared<Ball>(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
 	paddle_ = std::make_shared<Paddle>(WINDOW_WIDTH / 2, WINDOW_HEIGHT - 50);
-	initBricks(bl);
+	initBricks();
 	ball_->setVisible(false);
 	paddle_->setVisible(false);
 	std::for_each(std::begin(bricks_), std::end(bricks_),
@@ -29,6 +29,7 @@ Game::Game(const std::string& name, size_t maxFps, std::shared_ptr<BricksLayout>
 		paddle_->setVisible(true);
 		std::for_each(std::begin(bricks_), std::end(bricks_),
 			[](auto& brick) { brick->setVisible(true); });
+		lastUpdateDifficultyTime_ = default_clock::now();
 	},
 		[this]()
 	{
@@ -66,10 +67,15 @@ void Game::run()
 
 void Game::checkGameOver()
 {
-	if (isBallDropped())
+	if (bricks_.empty())
 	{
-		interface_->showMessage("Game Over");
-		gameOver_ = true;
+		interface_->showMessage("You win!");
+		reset();
+	}
+	else if (isBallDropped())
+	{
+		interface_->showMessage("Game Over!");
+		reset();
 	}
 }
 
@@ -205,7 +211,7 @@ void Game::hitAffected()
 		[](auto& brick) { brick->takeDamage(); });
 }
 
-void Game::initBricks(std::shared_ptr<BricksLayout> bl)
+void Game::initBricks()
 {
 	bricks_.clear();
 	bricks_.reserve(COUNT_BRICKS_X * COUNT_BRICKS_Y);
@@ -230,9 +236,10 @@ void Game::initBricks(std::shared_ptr<BricksLayout> bl)
 			mods.push_back(mod);
 		}
 	};
-	while (bl->hasNext())
+	bl_->reset();
+	while (bl_->hasNext())
 	{
-		auto brick = bl->getNext();
+		auto brick = bl_->getNext();
 		brick->setOnDestroy(onDestroy);
 		bricks_.push_back(brick);
 	}
@@ -254,10 +261,26 @@ bool Game::isInAOE(sf::Vector2f hitPoint, std::shared_ptr<Object> obj) const
 	return obj->calculateDistance(hitPoint) < ball_->getAreaOfHit();
 }
 
+void Game::reset()
+{
+	bricks_.clear();
+	modifiers_.clear();
+	initBricks();
+	ball_->setPosition(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
+	ball_->setVelocity(Ball::DEFAULT_VELOCITY);
+	ball_->setSpeed(Ball::DEFAULT_SPEED);
+	paddle_->setPosition(WINDOW_WIDTH / 2, WINDOW_HEIGHT - 50);
+	ball_->setVisible(false);
+	paddle_->setVisible(false);
+	std::for_each(std::begin(bricks_), std::end(bricks_),
+		[](auto& brick) { brick->setVisible(false); });
+	interface_->showMenu();
+	state_ = State::Menu;
+}
+
 void Game::update()
 {
 	interface_->update();
-
 	if (state_ != State::Playing)
 	{
 		return;
@@ -268,10 +291,6 @@ void Game::update()
 	for (auto& mod : modifiers_)
 	{
 		mod->update();
-	}
-	if (gameOver_)
-	{
-		return;
 	}
 
 	if (isDifficultyTimerUp())

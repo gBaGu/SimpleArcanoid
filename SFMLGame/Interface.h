@@ -68,6 +68,8 @@ namespace interface
 		void draw(sf::RenderWindow& window) const;
 		void update();
 
+		void hideMenu();
+		void showMenu();
 		void showMessage(const std::string& message);
 
 		static const std::string FontFilePath;

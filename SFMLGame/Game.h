@@ -64,13 +64,15 @@ private:
 	/* initBricks()
 	fills vector of bricks
 	*/
-	void initBricks(std::shared_ptr<BricksLayout> bl);
+	void initBricks();
 	/* isBallDropped()
 	checks if ball is out of screen
 	*/
 	bool isBallDropped() const;
 	bool isDifficultyTimerUp() const;
 	bool isInAOE(sf::Vector2f hitPoint, std::shared_ptr<Object> obj) const;
+
+	void reset();
 	/* update()
 	updates all objects:
 	check for collisions, recalculate velocity,
@@ -94,10 +96,10 @@ private:
 	std::vector<collision_ptr> activeCollisions_;
 	std::shared_ptr<Ball> ball_;
 	std::shared_ptr<Paddle> paddle_;
+	std::shared_ptr<BricksLayout> bl_;
 	std::vector<std::shared_ptr<Brick>> bricks_;
 	std::vector<std::shared_ptr<Modifier>> modifiers_;
 	const duration_t updateDifficultyDuration_ = duration_t(10);
 	time_point_t lastUpdateDifficultyTime_ = default_clock::now();
 	bool running_ = false;
-	bool gameOver_ = false;
 };
